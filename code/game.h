@@ -1,3 +1,5 @@
+#pragma once
+
 struct Player {
     Vector2 position;
     f32 speed;
