@@ -2,11 +2,13 @@
 
 #include "game.h"
 
+
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
 #define TILE_SIZE 32
 
+#include "loader.cpp"
 
 f32 Raycast(Player *player, Level *level, Vector2 offset, Vector2 direction)
 {
@@ -41,7 +43,7 @@ i32 main(void)
     i32 width = 1600;
     i32 height = 920;
 
-    InitWindow(width, height, "Fuck");
+    InitWindow(width, height, "Synchronize");
 
     Player player = {};
     player.position = { 400, 280 };
@@ -50,7 +52,7 @@ i32 main(void)
 
     u32 buffer[1024];
 
-    Level level = {};
+    Level level = load_from_file(1);
     level.width = 20;
     level.height = 20;
     level.tiles = buffer;
