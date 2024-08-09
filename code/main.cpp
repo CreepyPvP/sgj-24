@@ -50,25 +50,10 @@ i32 main(void)
     player.speed = 0;
     player.canJump = false;
 
-    u32 buffer[1024];
 
     Level level = load_from_file(1);
-    level.width = 20;
-    level.height = 20;
-    level.tiles = buffer;
 
-    for (u32 x = 0; x < level.width; ++x) 
-    {
-        for (u32 y = 0; y < level.height; ++y) 
-        {
-            if (x == 0 || y == 0 || y == (level.height - 1))
-            {
-                level.tiles[x + y * level.width] = 1;
-                continue;
-            }
-            level.tiles[x + y * level.width] = 0;
-        }
-    }
+    
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };
