@@ -93,7 +93,7 @@ i32 main(void)
     i32 width = 1600;
     i32 height = 920;
 
-    InitWindow(width, height, "Fuck");
+    InitWindow(width, height, "Synchronize");
 
     Player player = {};
     player.position = { 400, 280 };
@@ -102,7 +102,7 @@ i32 main(void)
 
     u32 buffer[1024];
 
-    Level level = {};
+    Level level = load_from_file(1);
     level.width = 20;
     level.height = 20;
     level.tiles = buffer;
