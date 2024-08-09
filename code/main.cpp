@@ -1,18 +1,16 @@
 #include "raylib.h"
-#include "raymath.h"
-#include "rlgl.h"
 
-#include <stdint.h>
-
-typedef int32_t i32;
-typedef uint32_t u32;
-typedef float f32;
+#include "game.h"
 
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
 #define TILE_SIZE 32
 
+
+f32 Raycast(Player *player, Level *level, Vector2 offset, Vector2 direction)
+{
+}
 
 void UpdatePlayer(Player *player, float delta)
 {
@@ -38,7 +36,7 @@ void UpdatePlayer(Player *player, float delta)
     }
 }
 
-int main(void)
+i32 main(void)
 {
     i32 width = 1600;
     i32 height = 920;
@@ -50,10 +48,11 @@ int main(void)
     player.speed = 0;
     player.canJump = false;
 
-    u32 buffer[100];
+    u32 buffer[1024];
+
     Level level = {};
-    level.width = 10;
-    level.height = 10;
+    level.width = 20;
+    level.height = 20;
     level.tiles = buffer;
 
     for (u32 x = 0; x < level.width; ++x) 
