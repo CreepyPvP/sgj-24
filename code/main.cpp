@@ -7,12 +7,27 @@
 #define PLAYER_HOR_SPD 200.0f
 #define TILE_SIZE 32
 
+struct DebugRay
+{
+    Vector2 start;
+    Vector2 end;
+    Color color;
+};
+
+u32 ray_count;
+DebugRay rays[100];
 
 f32 Raycast(Player *player, Level *level, Vector2 offset, Vector2 direction)
 {
+    DebugRay ray = {};
+    ray.start = player->position;
+    ray.end = Vector2Add(player->position, Vector2Scale(direction, 1000));
+    ray.color = BLACK;
+    rays[ray_count++] = ray;
+    return 0;
 }
 
-void UpdatePlayer(Player *player, float delta)
+void UpdatePlayer(Player *player, Level *level, float delta)
 {
     if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD * delta;
     if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD * delta;
@@ -34,6 +49,8 @@ void UpdatePlayer(Player *player, float delta)
     {
         player->canJump = true;
     }
+
+    Raycast(player, level, {0, 0}, {0, 1});
 }
 
 i32 main(void)
@@ -79,8 +96,9 @@ i32 main(void)
     {
         float delta = GetFrameTime();
 
-        UpdatePlayer(&player, delta);
+        ray_count = 0;
 
+        UpdatePlayer(&player, &level, delta);
         camera.target = { player.position.x, player.position.y };
 
         BeginDrawing();
@@ -99,6 +117,12 @@ i32 main(void)
                     DrawRectangleRec(tile, BLUE);
                 }
             }
+        }
+
+        for (u32 i = 0; i < ray_count; ++i) 
+        {
+            DebugRay ray = rays[i];
+            DrawLineV(ray.start, ray.end, ray.color);
         }
 
         Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
