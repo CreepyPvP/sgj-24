@@ -13,18 +13,6 @@ typedef float f32;
 #define PLAYER_HOR_SPD 200.0f
 #define TILE_SIZE 32
 
-struct Player {
-    Vector2 position;
-    f32 speed;
-    bool canJump;
-};
-
-struct Level
-{
-    u32 width;
-    u32 height;
-    u32 *tiles;
-};
 
 void UpdatePlayer(Player *player, float delta)
 {
@@ -72,7 +60,7 @@ int main(void)
     {
         for (u32 y = 0; y < level.height; ++y) 
         {
-            if (x == 0 || y == 0)
+            if (x == 0 || y == 0 || y == (level.height - 1))
             {
                 level.tiles[x + y * level.width] = 1;
                 continue;
