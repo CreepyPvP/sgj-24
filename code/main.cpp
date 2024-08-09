@@ -5,7 +5,7 @@
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
-#define TILE_SIZE 32
+#define TILE_SIZE 32.0f
 
 struct DebugRay
 {
@@ -17,20 +17,54 @@ struct DebugRay
 u32 ray_count;
 DebugRay rays[100];
 
+DebugRay *AllocRay()
+{
+    return &rays[ray_count++];
+}
+
 f32 Raycast(Player *player, Level *level, Vector2 offset, Vector2 direction)
 {
-    DebugRay ray = {};
-    ray.start = player->position;
-    ray.end = Vector2Add(player->position, Vector2Scale(direction, 1000));
-    ray.color = BLACK;
-    rays[ray_count++] = ray;
-    return 0;
+    f32 maxDist = 200;
+
+    DebugRay *ray = AllocRay();
+    ray->start = player->position;
+    ray->color = BLACK;
+
+    f32 t = 0;
+
+    while (t < maxDist)
+    {
+        Vector2 current = Vector2Add(player->position, Vector2Scale(direction, t));
+
+        i32 tileX = (i32) current.x;
+        i32 tileY = (i32) current.y;
+
+        if (tileX >= 0 && tileX < level->width && tileY >= 0 && tileY < level->height)
+        {
+            if (level->tiles[tileX + tileY * level->width]) {
+                ray->end = Vector2Add(player->position, Vector2Scale(direction, t));
+                return t;
+            }
+        }
+
+        t++;
+    }
+
+    ray->end = Vector2Add(player->position, Vector2Scale(direction, maxDist));
+
+    return -1;
 }
 
 void UpdatePlayer(Player *player, Level *level, float delta)
 {
-    if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD * delta;
-    if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD * delta;
+    if (IsKeyDown(KEY_LEFT)) 
+    {
+        player->position.x -= PLAYER_HOR_SPD * delta;
+    }
+    if (IsKeyDown(KEY_RIGHT)) 
+    {
+        player->position.x += PLAYER_HOR_SPD * delta;
+    }
     if (IsKeyDown(KEY_SPACE) && player->canJump)
     {
         player->speed = -PLAYER_JUMP_SPD;
@@ -51,6 +85,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     }
 
     Raycast(player, level, {0, 0}, {0, 1});
+    // Raycast(player, level, {0, 0}, {1, 0});
 }
 
 i32 main(void)
@@ -125,7 +160,7 @@ i32 main(void)
             DrawLineV(ray.start, ray.end, ray.color);
         }
 
-        Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
+        Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
         DrawRectangleRec(playerRect, RED);
 
         EndMode2D();
