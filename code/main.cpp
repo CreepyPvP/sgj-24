@@ -1,6 +1,7 @@
 #include "raylib.h"
 
 #include "game.h"
+#include "loader.h"
 
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
@@ -100,10 +101,8 @@ i32 main(void)
     player.speed = 0;
     player.canJump = false;
 
-
-    Level level = load_from_file(1);
-
-    
+    u32 buffer[2048];
+    Level level = LoadFromFile(1, buffer);
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };

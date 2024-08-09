@@ -1,22 +1,25 @@
 #include <stdio.h>
+#include <assert.h>
+
+#include "loader.h"
 
 #include "game.h"
 #include "stb_image.h"
-#include <cassert>
 
-
-Level load_from_file(u32 stage){
-
-    u32 buffer[1024];
+Level LoadFromFile(u32 stage, u32 *buffer)
+{
     Level level = {};
     level.tiles = buffer;
 
-    Level* levelpointer = &level;
+    // char path[1024];
+    // sprintf(path, "assets/levels/1part1.png");
+    // sprintf(path, "C:/Users/eario/Desktop/sgj24/sgj-24/assets/levels/1part1.png");
 
-    char path1[1024];
-    sprintf(path1, "C:/Users/eario/Desktop/sgj24/sgj-24/assets/levels/1part1.png");
-    //sprintf(path1, "../assets/levels/%upart1.png", stage);
-    u8* tmp = stbi_load(path1, (i32*) &levelpointer->width, (i32*) &levelpointer->height, NULL, STBI_rgb);
+    i32 width;
+    i32 height;
+    i32 channel = 3;
+
+    u8* tmp = stbi_load("assets/levels/test_level.png", &width, &height, &channel, 0);
     assert(tmp);
 
     u8* curr = tmp;
@@ -30,6 +33,6 @@ Level load_from_file(u32 stage){
             curr += 3;
         }
     }
-    return level;
 
+    return level;
 }
