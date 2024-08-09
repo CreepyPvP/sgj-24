@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 project(
-	sprite-generator
+    puzzle
 )
 
 set(ROOT_DIR ${PROJECT_SOURCE_DIR})
