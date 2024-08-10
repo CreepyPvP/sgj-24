@@ -6,44 +6,21 @@
 #include "game.h"
 #include "stb_image.h"
 
-
-
-
-
-void LoadGameFromFile(Game* game, u32 stage_number){
-    LoadLevelFromFile(&game->level[0],stage_number, true);
-    LoadLevelFromFile(&game->level[1],stage_number, false);
-    game->horizontal_split = false;    
-}
-
-void LoadLevelFromFile(Level* level, u32 stage, bool part_one)
+void LoadLevelFromFile(Level *level, char *path)
 {
     level->player.position = { 400, 280 };
-    level->player.speed = 0;
-    level->player.canJump = false;
-
-
-    char path[1024];
-    if(part_one){
-        sprintf(path, "assets/levels/%upart1.png", stage);
-    }else{
-        sprintf(path, "assets/levels/%upart2.png", stage);
-    }
 
     i32 width;
     i32 height;
     i32 channel = 3;
 
-    u8* tmp = stbi_load(path, &width, &height, &channel, STBI_rgb);
+    u8 *tmp = stbi_load(path, &width, &height, &channel, STBI_rgb);
     assert(tmp);
 
     level->width = width;
     level->height = height;
 
-    level->spike_count = 0;
-    level->goal_count = 0;
-
-    u8* curr = tmp;
+    u8 *curr = tmp;
     for (u32 y = 0; y < level->height; ++y) {
         for (u32 x = 0; x < level->width; ++x) {
 
@@ -83,4 +60,14 @@ void LoadLevelFromFile(Level* level, u32 stage, bool part_one)
 
 }
 
+void LoadGameFromFile(Game *game, u32 stage){
+    char path1[1024];
+    char path2[1024];
+    sprintf(path1, "assets/levels/%upart1.png", stage);
+    sprintf(path2, "assets/levels/%upart2.png", stage);
+
+    *game = {};
+    LoadLevelFromFile(&game->level[0], path1);
+    LoadLevelFromFile(&game->level[1], path2);
+}
 

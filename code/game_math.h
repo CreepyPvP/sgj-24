@@ -22,6 +22,11 @@ inline f32 Min(f32 a, f32 b)
     return b;
 }
 
+inline f32 Min(f32 a, f32 b, f32 c)
+{
+    return Min(a, Min(b, c));
+}
+
 inline f32 Max(f32 a, f32 b)
 {
     if (a > b)
@@ -30,4 +35,9 @@ inline f32 Max(f32 a, f32 b)
     }
 
     return b;
+}
+
+inline f32 Max(f32 a, f32 b, f32 c)
+{
+    return Max(a, Max(b, c));
 }

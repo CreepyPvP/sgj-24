@@ -13,18 +13,9 @@ typedef uint8_t u8;
 
 struct Player {
     Vector2 position;
-    f32 speed;
     bool canJump;
-    u32 animationFrame;
-    u32 state;
-};
-
-enum PlayerStateId{
-    IdleRight = 0,
-    IdleLeft = 1,
-    RunRight = 2,
-    RunLeft = 3,
-    Fall = 4
+    f32 vx;
+    f32 vy;
 };
 
 struct Spikes {
