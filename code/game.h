@@ -43,8 +43,8 @@ struct Synchronizer {
 
 struct Level
 {
-    u32 width;
-    u32 height;
+    i32 width;
+    i32 height;
     u32 tiles[2048];
 
     u32 spike_count;
