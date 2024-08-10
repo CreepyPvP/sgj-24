@@ -293,6 +293,7 @@ i32 main(void)
     i32 width = 1600;
     i32 height = 920;
 
+    // SetConfigFlags(FLAG_FULLSCREEN_MODE);
     InitWindow(width, height, "Synchronize");
 
     LoadAssets();
@@ -386,7 +387,7 @@ i32 main(void)
 
             UpdatePlayer(player, level, delta);
             // camera->target = { game.player->position.x, game.player->position.y };
-            camera->target = { player->position.x, player->position.y };
+            camera->target = Vector2Lerp(player->position, game.player[0].position, 0);
 
             BeginTextureMode(game.framebuffer[i]);
             ClearBackground(i == 0? RAYWHITE : SKYBLUE);

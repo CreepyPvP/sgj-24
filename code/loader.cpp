@@ -61,7 +61,7 @@ void LoadLevelFromFile(Level *level, char *path)
 
 void LoadGameFromFile(Game *game, u32 stage)
 {
-    game->horizontal_split = true;
+    game->horizontal_split = false;
     for (u32 i = 0; i < 2; ++i)
     {
         char path[1024];
