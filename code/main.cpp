@@ -5,9 +5,9 @@
 #include <cassert>
 #include <stdio.h>
 
-#define G 80.0f
-#define PLAYER_JUMP_SPD -15.0f
-#define PLAYER_HOR_SPD 400.0f
+#define G 1500.0f
+#define PLAYER_JUMP_SPD -800.0f
+#define PLAYER_HOR_SPD 600.0f
 
 #define TOTAL_LEVEL_COUNT 3
 
@@ -165,7 +165,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     {
         f32 right = Min(
             Raycast(player, level, { TILE_SIZE / 2, 0.2 * TILE_SIZE }, Direction_Right),
-            // Raycast(player, level, { TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Right),
+            Raycast(player, level, { TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Right),
             Raycast(player, level, { TILE_SIZE / 2, 1.55 * TILE_SIZE }, Direction_Right)
         );
         player->vx = Min(right, player->vx);
@@ -174,7 +174,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     {
         f32 left = Min(
             Raycast(player, level, { -TILE_SIZE / 2, 0.2 * TILE_SIZE }, Direction_Left),
-            // Raycast(player, level, { -TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Left),
+            Raycast(player, level, { -TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Left),
             Raycast(player, level, { -TILE_SIZE / 2, 1.55 * TILE_SIZE }, Direction_Left)
         );
         player->vx = Max(-left, player->vx);
@@ -188,14 +188,14 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             Raycast(player, level, {0.9 * TILE_SIZE / 2, 0}, Direction_Up)
         );
 
-        if (up > player->vy)
+        if (up > 0)
         {
             player->vy = 0;
             player->position.y += up;
         }
         else
-    {
-            player->position.y += player->vy;
+        {
+            player->position.y += player->vy * delta;
         }
     }
     else
@@ -205,7 +205,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             Raycast(player, level, { 0.9 * TILE_SIZE / 2, 1.75 * TILE_SIZE }, Direction_Down)
         );
 
-        if (down < player->vy)
+        if (down < 7)
         {
             player->vy = 0;
             player->position.y += down;
@@ -213,10 +213,10 @@ void UpdatePlayer(Player *player, Level *level, float delta)
         }
         else
         {
-            player->position.y += player->vy;
+            player->position.y += player->vy * delta;
+            player->canJump = false;
         }
     }
-    player->position.y += player->vy;
 }
 
 i32 main(void)
