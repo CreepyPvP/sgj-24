@@ -95,6 +95,17 @@ void PopulateTileRuleLookup()
     // Platforms
 
 
+    tileRuleLookup[NeighbourMask(0, 0, 0,
+                                 0,    1,
+                                 0, 0, 0)] = Tile_PlatformLeft;
+    
+    tileRuleLookup[NeighbourMask(0, 0, 0,
+                                 1,    0,
+                                 0, 0, 0)] = Tile_PlatformRight;
+
+    tileRuleLookup[NeighbourMask(0, 0, 0,
+                                 1,    1,
+                                 0, 0, 0)] = Tile_WallUp;
 }
 
 inline bool IsWallOrOutside(i32 x, i32 y, i32 width, i32 height, u8 *buffer)
