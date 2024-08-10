@@ -139,7 +139,7 @@ i32 main(void)
                 }
 
                 if( type == Tile_Player){
-                    player.position = {x * TILE_SIZE, y * TILE_SIZE};
+                    player.position = {x * TILE_SIZE + (TILE_SIZE/2), y * TILE_SIZE - (TILE_SIZE/2)};
                     level.tiles[x + y * level.width] = Tile_Air;
                 }
 

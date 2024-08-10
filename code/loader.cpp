@@ -12,7 +12,7 @@ Game LoadGameFromFile(u32 stage_number, u32 *buffer1, u32* buffer2){
     Game game = {};
 
     game.level[0] = LoadLevelFromFile(stage_number, buffer1, true);
-    game.level[1] = LoadLevelFromFile(stage_number, buffer1, false);
+    game.level[1] = LoadLevelFromFile(stage_number, buffer2, false);
     game.horizontal_split = false;
     
     return game;
