@@ -77,7 +77,7 @@ Level LoadLevelFromFile(u32 stage, u32 *buffer, bool part_one, Vector2 *player_p
                curr[1] == 0 &&
                curr[2] == 255){
                 player_position->x = x * TILE_SIZE + (TILE_SIZE/2);
-                player_position->y = y * TILE_SIZE - (TILE_SIZE/2);
+                player_position->y = y * TILE_SIZE - (TILE_SIZE * 0.75f);
             } 
             else {
                 level.tiles[x + y * level.width] = Tile_Air;
