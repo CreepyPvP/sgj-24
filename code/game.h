@@ -23,6 +23,13 @@ struct Level
 };
 
 
+struct Game
+{
+    Level level1;
+    Level level2;
+    bool horizontal_split;
+};
+
 enum TileId
 {
     Tile_Air = 0,
