@@ -424,7 +424,7 @@ i32 main(void)
         DrawRectangleRec(playerRect, GREEN);
 
         Vector2 player_render_position = {player->position.x - (TILE_SIZE *0.5f), player->position.y  };
-        bool player_is_blue = false;
+        bool player_is_blue = (i == 0);
 
         switch(player->state){
             case IdleLeft : 
