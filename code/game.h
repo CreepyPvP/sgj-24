@@ -34,8 +34,8 @@ struct Game
 
 enum TileId
 {
-    Tile_Air = 0,
-    Tile_Wall = 1,
-    Tile_Goal = 2,
-    Tile_Spikes = 3
+    Tile_Air,
+    Tile_Wall,
+    Tile_Goal,
+    Tile_Spikes,
 };

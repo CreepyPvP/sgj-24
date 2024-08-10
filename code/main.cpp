@@ -109,36 +109,51 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 
 void UpdatePlayer(Player *player, Level *level, float delta)
 {
-    if (IsKeyDown(KEY_W)) 
-    {
-        player->position.y -= PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_S)) 
-    {
-        player->position.y += PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_A)) 
-    {
-        player->position.x -= PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_D)) 
-    {
-        player->position.x += PLAYER_HOR_SPD * delta;
-    }
-    // if (IsKeyDown(KEY_LEFT)) 
+    // if (IsKeyDown(KEY_W)) 
+    // {
+    //     player->position.y -= PLAYER_HOR_SPD * delta;
+    // }
+    // if (IsKeyDown(KEY_S)) 
+    // {
+    //     player->position.y += PLAYER_HOR_SPD * delta;
+    // }
+    // if (IsKeyDown(KEY_A)) 
     // {
     //     player->position.x -= PLAYER_HOR_SPD * delta;
     // }
-    // if (IsKeyDown(KEY_RIGHT)) 
+    // if (IsKeyDown(KEY_D)) 
     // {
     //     player->position.x += PLAYER_HOR_SPD * delta;
     // }
+
+    float horizontal = 0;
+
+    if (IsKeyDown(KEY_A)) 
+    {
+        horizontal -= PLAYER_HOR_SPD * delta;
+    }
+    if (IsKeyDown(KEY_D)) 
+    {
+        horizontal += PLAYER_HOR_SPD * delta;
+    }
+
+    if (horizontal > 0)
+    {
+        horizontal = Min(Raycast(player, level, { TILE_SIZE / 2, 0 }, Direction_Right), horizontal);
+        player->position.x += horizontal;
+    } 
+    else 
+    {
+        horizontal = Max(-Raycast(player, level, { -TILE_SIZE / 2, 0}, Direction_Left), horizontal);
+        player->position.x += horizontal;
+    }
+
     // if (IsKeyDown(KEY_SPACE) && player->canJump)
     // {
     //     player->speed = -PLAYER_JUMP_SPD;
     //     player->canJump = false;
     // }
-    //
+
     // bool hitObstacle = false;
     //
     // if (!hitObstacle)
@@ -153,7 +168,6 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     // }
 
     // Raycast(player, level, {0, 1.75 * TILE_SIZE}, {0, 1});
-    TraceLog(LOG_DEBUG, "%f", Raycast(player, level, {0, 0}, Direction_Right));
     // Raycast(player, level, {0, 0}, {1, 0});
 }
 
