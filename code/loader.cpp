@@ -19,15 +19,15 @@ Game LoadGameFromFile(u32 stage_number, u32 *buffer1, u32* buffer2){
     game.player[1].speed = 0;
     game.player[1].canJump = false;
 
-    game.level[0] = LoadLevelFromFile(stage_number, buffer1, true);
-    game.level[1] = LoadLevelFromFile(stage_number, buffer2, false);
+    game.level[0] = LoadLevelFromFile(stage_number, buffer1, true, &game.player[0].position);
+    game.level[1] = LoadLevelFromFile(stage_number, buffer2, false, &game.player[1].position);
     game.horizontal_split = false;
 
     
     return game;
 }
 
-Level LoadLevelFromFile(u32 stage, u32 *buffer, bool part_one)
+Level LoadLevelFromFile(u32 stage, u32 *buffer, bool part_one, Vector2 *player_position)
 {
     Level level = {};
     level.tiles = buffer;
@@ -49,8 +49,6 @@ Level LoadLevelFromFile(u32 stage, u32 *buffer, bool part_one)
     level.width = width;
     level.height = height;
 
-    printf("%d\n", level.width);
-    printf("%d\n", level.height);
 
     u8* curr = tmp;
     for (u32 y = 0; y < level.height; ++y) {
@@ -79,7 +77,8 @@ Level LoadLevelFromFile(u32 stage, u32 *buffer, bool part_one)
             else if(curr[0] == 0 &&
                curr[1] == 0 &&
                curr[2] == 255){
-                level.tiles[x + y * level.width] = Tile_Player;
+                player_position->x = x * TILE_SIZE + (TILE_SIZE/2);
+                player_position->y = y * TILE_SIZE - (TILE_SIZE/2);
             } 
             else {
                 level.tiles[x + y * level.width] = Tile_Air;

@@ -6,7 +6,10 @@
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
-#define TILE_SIZE 32.0f
+
+#define TOTAL_LEVEL_COUNT 2
+
+u8 current_level;
 
 struct DebugRay
 {
@@ -96,12 +99,15 @@ i32 main(void)
 
     InitWindow(width, height, "Synchronize");
 
+    current_level = 0;
 
     u32 buffer1[2048];
     u32 buffer2[2048];
-    Game game = LoadGameFromFile(1, buffer1, buffer2);
+    Game game = LoadGameFromFile(current_level, buffer1, buffer2);
     Level level = game.level[0];
     Player player = game.player[0];
+
+    bool just_started_level = true;
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };
@@ -135,11 +141,6 @@ i32 main(void)
                     DrawRectangleRec(tile, BLUE);
                 }
 
-                if( type == Tile_Player){
-                    player.position = {x * TILE_SIZE + (TILE_SIZE/2), y * TILE_SIZE - (TILE_SIZE/2)};
-                    level.tiles[x + y * level.width] = Tile_Air;
-                }
-
                 if (type == Tile_Spikes) 
                 {
                     Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
@@ -155,6 +156,21 @@ i32 main(void)
 
             }
         }
+
+
+        //Go to next level if N is pressed.
+        if(IsKeyDown(KEY_N)){
+            if(!just_started_level){
+                current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
+                game = LoadGameFromFile(current_level, buffer1, buffer2);
+                level = game.level[0];
+                player = game.player[0];
+                just_started_level = true;
+            }
+        }else{
+            just_started_level = false;
+        }
+
 
         for (u32 i = 0; i < ray_count; ++i) 
         {
