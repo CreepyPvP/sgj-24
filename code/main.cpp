@@ -15,6 +15,8 @@
 
 u32 current_level;
 
+bool reset_level;
+
 
 struct DebugRay
 {
@@ -275,6 +277,35 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     } else {
         player->animation_frame++;
     }
+
+    //Spike Collision
+
+    for(u32 i= 0; i < level->spike_count;i++){
+        Spikes spike = level->spikes[i];
+
+        Vector2 left_corner = {spike.position.x, spike.position.y + TILE_SIZE/2 };
+        Vector2 right_corner = {spike.position.x + TILE_SIZE, spike.position.y + TILE_SIZE/2 };
+        Vector2 peak = {spike.position.x + TILE_SIZE/2 , spike.position.y - TILE_SIZE/2 };
+
+        Vector2 player_pos = {player->position.x - TILE_SIZE/2, player->position.y};
+        Vector2 player_size = {TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE};
+
+        if(aabb_contains_point(player_pos, player_size, left_corner) ||
+           aabb_contains_point(player_pos, player_size, right_corner) ||
+           aabb_contains_point(player_pos, player_size, peak))
+        {
+            reset_level = true;
+        }
+    }
+
+    //Goal Collision
+
+    // for(u32 i= 0; i < level->goal_count;i++){
+    //     Goal goal = level->goals[i];
+    //     if(aabb_intersects_aabb(goal.position, ){
+
+    //     }
+    // }
 }
 
 i32 main(void)
@@ -289,6 +320,7 @@ i32 main(void)
     LoadAssets();
 
     current_level = 0;
+    reset_level = false;
 
     Game game = {};
     LoadGameFromFile(&game, current_level);
@@ -305,12 +337,17 @@ i32 main(void)
         if (IsKeyPressed(KEY_N))
         {
             current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
-            LoadGameFromFile(&game, current_level);
+            reset_level = true;
         }
 
         if (IsKeyPressed(KEY_R))
-        {
+        {   
+            reset_level = true;
+        }
+
+        if (reset_level){
             LoadGameFromFile(&game, current_level);
+            reset_level = false;
         }
 
         if (!game.framebufferValid)
@@ -377,6 +414,8 @@ i32 main(void)
                 }
             }
 
+        //Render player
+
         Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE };
         
         DrawRectangleRec(playerRect, GREEN);
@@ -414,6 +453,8 @@ i32 main(void)
                 }
                 DrawTextureRec(player_sprite_texture, player_frame_rec, player_render_position, WHITE); break;
         }
+
+        //End Render Player
 
 #if 0
             for (u32 i = 0; i < ray_count; ++i) 
