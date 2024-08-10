@@ -6,13 +6,29 @@
 #include "game.h"
 #include "stb_image.h"
 
-Level LoadFromFile(u32 stage, u32 *buffer)
+
+
+Game LoadGameFromFile(u32 stage_number, u32 *buffer1, u32* buffer2){
+    Game game = {};
+
+    game.level[0] = LoadLevelFromFile(stage_number, buffer1, true);
+    game.level[1] = LoadLevelFromFile(stage_number, buffer1, false);
+    game.horizontal_split = false;
+    
+    return game;
+}
+
+Level LoadLevelFromFile(u32 stage, u32 *buffer, bool part_one)
 {
     Level level = {};
     level.tiles = buffer;
 
     char path[1024];
-    sprintf(path, "assets/levels/test_level.png");
+    if(part_one){
+        sprintf(path, "assets/levels/%upart1.png", stage);
+    }else{
+        sprintf(path, "assets/levels/%upart2.png", stage);
+    }
 
     i32 width;
     i32 height;
@@ -65,3 +81,5 @@ Level LoadFromFile(u32 stage, u32 *buffer)
 
     return level;
 }
+
+

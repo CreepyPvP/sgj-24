@@ -25,8 +25,7 @@ struct Level
 
 struct Game
 {
-    Level level1;
-    Level level2;
+    Level level[2];
     bool horizontal_split;
 };
 
