@@ -284,14 +284,6 @@ void UpdatePlayer(Player *player, Level *level, float delta)
         }
     }
 
-    //Goal Collision
-
-    // for(u32 i= 0; i < level->goal_count;i++){
-    //     Goal goal = level->goals[i];
-    //     if(aabb_intersects_aabb(goal.position, ){
-
-    //     }
-    // }
 }
 
 i32 main(void)
@@ -331,7 +323,31 @@ i32 main(void)
             reset_level = true;
         }
 
-        if (reset_level){
+        //Check goal
+        u32 achieved_goals = 0;
+        for (u32 i = 0; i < 2; ++i)
+        {
+            Vector2 player_position = {game.player[i].position.x - (TILE_SIZE/2.0f) , game.player[i].position.y};
+            Vector2 player_size = {TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE};
+            for(u32 j = 0; j < game.level[i].goal_count; ++j)
+            {
+                if(aabb_intersects_aabb(game.level[i].goals[j].position, {TILE_SIZE, TILE_SIZE} ,
+                                    player_position, player_size))
+                {
+                    achieved_goals++;
+                    break;
+                }
+            }
+        }
+        if (achieved_goals == 2 && !reset_level)
+        {
+            current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
+            reset_level = true;
+        }
+
+
+        if (reset_level)
+        {
             LoadGameFromFile(&game, current_level);
             reset_level = false;
         }

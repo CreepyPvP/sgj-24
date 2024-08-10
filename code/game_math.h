@@ -53,6 +53,6 @@ inline bool aabb_contains_point(Vector2 aabb_pos, Vector2 aabb_size, Vector2 poi
 
 inline bool aabb_intersects_aabb(Vector2 aabb1_pos, Vector2 aabb1_size, Vector2 aabb2_pos, Vector2 aabb2_size)
 {
-    return aabb_contains_point(aabb1_pos, aabb1_size, aabb2_pos) ||
-           aabb_contains_point(aabb1_pos, aabb1_size, {aabb2_pos.x + aabb2_size.x , aabb2_pos.y + aabb2_size.y }) ;
+    return (aabb1_pos.x <= aabb2_pos.x + aabb2_size.x && aabb2_pos.x <= aabb1_pos.x + aabb1_size.x ) && 
+            (aabb1_pos.y <= aabb2_pos.y + aabb2_size.y && aabb2_pos.y <= aabb1_pos.y + aabb1_size.y );
 }
