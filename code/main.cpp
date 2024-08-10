@@ -11,7 +11,7 @@
 #define PLAYER_HOR_SPD 450.0f
 #define PLAYER_HEIGHT 1.65f
 
-#define TOTAL_LEVEL_COUNT 5
+#define TOTAL_LEVEL_COUNT 6
 
 u32 current_level;
 
@@ -394,23 +394,56 @@ i32 main(void)
                                     {player->position.x - (TILE_SIZE/2.0f) , player->position.y}, 
                                     {TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE}))
                 {
-                    player->position.x = game.player[1-i].position.x;
-                    player->position.y = game.player[1-i].position.y;
-                    player->vx = game.player[1-i].vx;
-                    player->vy = game.player[1-i].vy;
-                    player->canJump = game.player[1-i].canJump;
-                    player->state = game.player[1-i].state;
-                    player->animation_frame = game.player[1-i].animation_frame;
+                    bool can_teleport = true;
 
-
-                    u32 int_x_pos = (int)(player->position.x / TILE_SIZE);
-                    u32 int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT /2 )  / TILE_SIZE);
+                    u32 int_x_pos = (int)((player->position.x - TILE_SIZE/2)/ TILE_SIZE);
+                    u32 int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT )  / TILE_SIZE);
                     if(0<= int_x_pos && int_x_pos < level->width && 
-                        0 <= int_y_pos < level->height){
+                       0 <= int_y_pos && int_y_pos < level->height){
                         u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
                         if(tile == Tile_Wall){
                             reset_level = true;
                         }
+                    }
+                    int_x_pos = (int)((player->position.x + TILE_SIZE/2)/ TILE_SIZE);
+                    int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT )  / TILE_SIZE);
+                    if(0<= int_x_pos && int_x_pos < level->width && 
+                       0 <= int_y_pos && int_y_pos < level->height){
+                        u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        if(tile == Tile_Wall){
+                            reset_level = true;
+                        }
+                    }
+                    int_x_pos = (int)((player->position.x - TILE_SIZE/2)/ TILE_SIZE);
+                    int_y_pos = (int)((player->position.y)  / TILE_SIZE);
+                    if(0<= int_x_pos && int_x_pos < level->width && 
+                       0 <= int_y_pos && int_y_pos < level->height){
+                        u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        if(tile == Tile_Wall){
+                            reset_level = true;
+                        }
+                    }
+                    int_x_pos = (int)((player->position.x + TILE_SIZE/2)/ TILE_SIZE);
+                    int_y_pos = (int)((player->position.y)  / TILE_SIZE);
+                    if(0<= int_x_pos && int_x_pos < level->width && 
+                       0 <= int_y_pos && int_y_pos < level->height){
+                        u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        if(tile == Tile_Wall){
+                            reset_level = true;
+                        }
+                    }
+
+                    if(can_teleport){
+                        player->position.x = game.player[1-i].position.x;
+                        player->position.y = game.player[1-i].position.y;
+                        player->vx = game.player[1-i].vx;
+                        player->vy = game.player[1-i].vy;
+                        player->canJump = game.player[1-i].canJump;
+                        player->state = game.player[1-i].state;
+                        player->animation_frame = game.player[1-i].animation_frame;
+                    }
+                    else{
+                        //TODO: 
                     }
                     
 
