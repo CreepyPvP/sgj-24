@@ -9,6 +9,7 @@
 #define G 1500.0f
 #define PLAYER_JUMP_SPD -800.0f
 #define PLAYER_HOR_SPD 600.0f
+#define PLAYER_HEIGHT 1.65f
 
 #define TOTAL_LEVEL_COUNT 3
 
@@ -35,13 +36,9 @@ Texture2D tile2_texture;
 Texture2D spike1_texture;
 Texture2D spike2_texture;
 
-Texture2D idle_left_texture;
-Texture2D idle_right_texture;
-Texture2D run_left_texture;
-Texture2D run_right_texture;
+Texture2D player_sprite_texture;
+Rectangle player_frame_rec;
 
-Rectangle idle_frame_rec;
-Rectangle run_frame_rec;
 
 void LoadAssets(){
     Image tile1_image = LoadImage("assets/tiles1.png");
@@ -68,25 +65,13 @@ void LoadAssets(){
     UnloadImage(spike2_image);
     assert(spike2_texture.id != 0);
 
-    Image idle_sheet_image = LoadImage("assets/player/IdleSheet.png");
-    ImageResize(&idle_sheet_image,160,160);
-    idle_right_texture = LoadTextureFromImage(idle_sheet_image);
-    ImageFlipHorizontal(&idle_sheet_image);
-    idle_left_texture = LoadTextureFromImage(idle_sheet_image);
-    UnloadImage(idle_sheet_image);
-    assert(idle_left_texture.id != 0);
+    Image player_sprite_image = LoadImage("assets/player/SpriteSheet.png");
+    ImageResize(&player_sprite_image,384,448);
+    player_sprite_texture = LoadTextureFromImage(player_sprite_image);
+    UnloadImage(player_sprite_image);
+    assert(player_sprite_texture.id != 0);
 
-    
-    Image run_sheet_image = LoadImage("assets/player/RunSheet.png");
-    ImageResize(&run_sheet_image,240,160);
-    run_right_texture = LoadTextureFromImage(run_sheet_image);
-    ImageFlipHorizontal(&run_sheet_image);
-    run_left_texture = LoadTextureFromImage(run_sheet_image);
-    UnloadImage(run_sheet_image);
-    assert(run_left_texture.id != 0);
-
-    idle_frame_rec = { 0.0f, 0.0f, (float)idle_right_texture.width/2, (float)idle_right_texture.height };
-    run_frame_rec = { 0.0f, 0.0f, (float)run_right_texture.width/3, (float)run_right_texture.height };
+    player_frame_rec = {0.0f, 0.0f, (float)player_sprite_texture.width/6, (float)player_sprite_texture.height/4 };
 }
 
 enum Direction
@@ -250,8 +235,8 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     else
     {
         f32 down = Min(
-            Raycast(player, level, { -0.9 * TILE_SIZE / 2, 1.75 * TILE_SIZE }, Direction_Down),
-            Raycast(player, level, { 0.9 * TILE_SIZE / 2, 1.75 * TILE_SIZE }, Direction_Down)
+            Raycast(player, level, { -0.9 * TILE_SIZE / 2, PLAYER_HEIGHT * TILE_SIZE }, Direction_Down),
+            Raycast(player, level, { 0.9 * TILE_SIZE / 2, PLAYER_HEIGHT * TILE_SIZE }, Direction_Down)
         );
 
         if (down < 7)
@@ -378,25 +363,42 @@ i32 main(void)
         }
 
 
-        Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, 1.75 * TILE_SIZE };
+        Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE };
         
-        //DrawRectangleRec(playerRect, GREEN);
+        DrawRectangleRec(playerRect, GREEN);
 
-        Vector2 player_render_position = {player->position.x - (TILE_SIZE *0.625f), player->position.y - (TILE_SIZE / 2)  };
+        Vector2 player_render_position = {player->position.x - (TILE_SIZE *0.5f), player->position.y  };
+        bool player_is_blue = false;
 
         switch(player->state){
             case IdleLeft : 
-                idle_frame_rec.x = (player->animation_frame / 20) * idle_right_texture.width/2;
-                DrawTextureRec(idle_left_texture, idle_frame_rec, player_render_position, WHITE); break;
+                player_frame_rec.y = 2 * player_sprite_texture.height / 4;
+                player_frame_rec.x = ((player->animation_frame / 20) % 2) * player_sprite_texture.width / 6;
+                if (!player_is_blue){
+                    player_frame_rec.x += 2 * player_sprite_texture.width / 6;
+                }
+                DrawTextureRec(player_sprite_texture, player_frame_rec, player_render_position, WHITE); break;
             case IdleRight : 
-                idle_frame_rec.x = (player->animation_frame / 20) * idle_right_texture.width/2;
-                DrawTextureRec(idle_right_texture, idle_frame_rec, player_render_position, WHITE); break;
+                player_frame_rec.y = 0 * player_sprite_texture.height / 4;
+                player_frame_rec.x = ((player->animation_frame / 20) % 2) * player_sprite_texture.width / 6;
+                if (!player_is_blue){
+                    player_frame_rec.x += 2 * player_sprite_texture.width / 6;
+                }
+                DrawTextureRec(player_sprite_texture, player_frame_rec, player_render_position, WHITE); break;
             case RunLeft : 
-                run_frame_rec.x = (player->animation_frame / 5) * run_right_texture.width/3;
-                DrawTextureRec(run_left_texture, run_frame_rec, player_render_position, WHITE); break;
+                player_frame_rec.y = 3 * player_sprite_texture.height / 4;
+                player_frame_rec.x = ((player->animation_frame / 5) % 3) * player_sprite_texture.width / 6;
+                if (!player_is_blue){
+                    player_frame_rec.x += 3 * player_sprite_texture.width / 6;
+                }
+                DrawTextureRec(player_sprite_texture, player_frame_rec, player_render_position, WHITE); break;
             case RunRight : 
-                run_frame_rec.x = (player->animation_frame / 5) * run_right_texture.width/3;
-                DrawTextureRec(run_right_texture, run_frame_rec, player_render_position, WHITE); break;
+                player_frame_rec.y = 1 * player_sprite_texture.height / 4;
+                player_frame_rec.x = ((player->animation_frame / 5) % 3) * player_sprite_texture.width / 6;
+                if (!player_is_blue){
+                    player_frame_rec.x += 3 * player_sprite_texture.width / 6;
+                }
+                DrawTextureRec(player_sprite_texture, player_frame_rec, player_render_position, WHITE); break;
         }
 
 #if 1
