@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+#include "raylib.h"
 #include "raymath.h"
 
 typedef int32_t i32;
@@ -32,17 +33,19 @@ struct Level
     u32 height;
     u32 tiles[2048];
 
-    Spikes spikes[50];
-    Goal goals[50];
-    Player player;
-
     u32 spike_count;
+    Spikes spikes[50];
+
     u32 goal_count;
-    
+    Goal goals[50];
+
+    Vector2 spawn;
 };
 
 struct Game
 {
+    Player player[2];
+    Camera2D camera[2];
     Level level[2];
     bool horizontal_split;
 };

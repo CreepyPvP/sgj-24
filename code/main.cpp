@@ -2,6 +2,7 @@
 #include "game.h"
 #include "loader.h"
 #include "game_math.h"
+
 #include <cassert>
 #include <stdio.h>
 
@@ -252,13 +253,13 @@ i32 main(void)
 
     Game game = {};
     LoadGameFromFile(&game, current_level);
-    Level level = game.level[0];
-    Player player = level.player;
 
-    Camera2D camera = {};
-    camera.offset = { width / 2.0f, height / 2.0f };
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
+    for (u32 i = 0; i < 2; ++i)
+    {
+        game.camera[i].offset = { width / 2.0f, height / 2.0f };
+        game.camera[i].rotation = 0.0f;
+        game.camera[i].zoom = 1.0f;
+    }
 
     SetTargetFPS(60);
 
@@ -267,46 +268,36 @@ i32 main(void)
     while (!WindowShouldClose())
     {
         f32 delta = GetFrameTime();
-        // float delta = 0;
-        // if (IsKeyDown(KEY_W)) 
-        // {
-        //     delta = GetFrameTime();
-        // }
-        // if (IsKeyDown(KEY_S)) 
-        // {
-        //     delta = -GetFrameTime();
-        // }
-
         ray_count = 0;
 
         if (IsKeyPressed(KEY_N))
         {
             current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
             LoadGameFromFile(&game, current_level);
-            level = game.level[0];
-            player = level.player;
         }
 
         if (IsKeyPressed(KEY_R))
         {
             LoadGameFromFile(&game, current_level);
-            level = game.level[0];
-            player = level.player;
         }
 
-        UpdatePlayer(&player, &level, delta);
-        camera.target = { player.position.x, player.position.y };
+        Camera2D *camera = game.camera;
+        Level *level = game.level;
+        Player *player = game.player;
+
+        UpdatePlayer(player, level, delta);
+        camera->target = { player->position.x, player->position.y };
 
         BeginDrawing();
         ClearBackground(WHITE);
 
-        BeginMode2D(camera);
+        BeginMode2D(*camera);
 
-        for (i32 x = 0; x < level.width; ++x)
+        for (i32 x = 0; x < level->width; ++x)
         {
-            for (i32 y = 0; y < level.height; ++y)
+            for (i32 y = 0; y < level->height; ++y)
             {
-                u32 type = level.tiles[x + y * level.width];
+                u32 type = level->tiles[x + y * level->width];
                 if (type == Tile_Wall) 
                 {
                     Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
@@ -315,20 +306,19 @@ i32 main(void)
             }
         }
 
-        for (i32 i = 0; i < level.spike_count; ++i)
+        for (i32 i = 0; i < level->spike_count; ++i)
         {
-            Rectangle tile = { level.spikes[i].position.x, level.spikes[i].position.y, TILE_SIZE, TILE_SIZE };
-            DrawTexture(spike1_texture, level.spikes[i].position.x, level.spikes[i].position.y, WHITE);
+            Rectangle tile = { level->spikes[i].position.x, level->spikes[i].position.y, TILE_SIZE, TILE_SIZE };
+            DrawTexture(spike1_texture, level->spikes[i].position.x, level->spikes[i].position.y, WHITE);
         }
 
-        for (i32 i = 0; i < level.goal_count; ++i)
+        for (i32 i = 0; i < level->goal_count; ++i)
         {
-            Rectangle tile = { level.goals[i].position.x, level.goals[i].position.y, TILE_SIZE, TILE_SIZE };
+            Rectangle tile = { level->goals[i].position.x, level->goals[i].position.y, TILE_SIZE, TILE_SIZE };
             DrawRectangleRec(tile, YELLOW);
         }
 
-
-        Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
+        Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, 1.75 * TILE_SIZE };
         DrawRectangleRec(playerRect, GREEN);
 
 #if 1
