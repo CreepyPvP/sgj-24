@@ -2,6 +2,8 @@
 #include "game.h"
 #include "loader.h"
 #include "game_math.h"
+#include <cassert>
+#include <stdio.h>
 
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
@@ -25,6 +27,16 @@ DebugRay *AllocRay()
 {
     return &rays[ray_count++];
 }
+
+Texture2D tile_texture;
+
+void LoadAssets(){
+    Image tile_image = LoadImage("assets/tiles.png");
+    ImageResize(&tile_image,64,64);
+    tile_texture = LoadTextureFromImage(tile_image);
+    assert(tile_texture.id != 0);
+}
+
 
 enum Direction
 {
@@ -171,6 +183,9 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     // Raycast(player, level, {0, 0}, {1, 0});
 }
 
+
+
+
 i32 main(void)
 {
     SetTraceLogLevel(LOG_DEBUG);
@@ -179,6 +194,9 @@ i32 main(void)
     i32 height = 920;
 
     InitWindow(width, height, "Synchronize");
+
+    
+    LoadAssets();
 
     current_level = 0;
 
@@ -235,7 +253,7 @@ i32 main(void)
                 {
                     Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
                     DrawRectangleRec(tile, BLUE);
-                    // DrawTexture(texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
+                    DrawTexture(tile_texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
                 }
             }
         }

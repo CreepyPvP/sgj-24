@@ -8,6 +8,8 @@
 
 
 
+
+
 void LoadGameFromFile(Game* game, u32 stage_number){
     LoadLevelFromFile(&game->level[0],stage_number, true);
     LoadLevelFromFile(&game->level[1],stage_number, false);
