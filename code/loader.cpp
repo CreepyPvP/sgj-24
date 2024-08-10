@@ -8,7 +8,7 @@
 
 void LoadLevelFromFile(Level *level, char *path)
 {
-    level->player.position = { 400, 280 };
+    level->spawn = { 400, 280 };
 
     i32 width;
     i32 height;
@@ -33,7 +33,6 @@ void LoadLevelFromFile(Level *level, char *path)
                 level->tiles[x + y * level->width] = Tile_Air;
             }
             
-            
             if(curr[0] == 255 &&
                curr[1] == 0 &&
                curr[2] == 0){
@@ -51,8 +50,8 @@ void LoadLevelFromFile(Level *level, char *path)
             else if(curr[0] == 0 &&
                curr[1] == 0 &&
                curr[2] == 255){
-                level->player.position.x = x * TILE_SIZE + (TILE_SIZE/2);
-                level->player.position.y = y * TILE_SIZE - (TILE_SIZE * 0.75f);
+                level->spawn.x = x * TILE_SIZE + (TILE_SIZE/2);
+                level->spawn.y = y * TILE_SIZE - (TILE_SIZE * 0.75f);
             } 
             curr += 3;
         }
@@ -60,14 +59,18 @@ void LoadLevelFromFile(Level *level, char *path)
 
 }
 
-void LoadGameFromFile(Game *game, u32 stage){
-    char path1[1024];
-    char path2[1024];
-    sprintf(path1, "assets/levels/%upart1.png", stage);
-    sprintf(path2, "assets/levels/%upart2.png", stage);
+void LoadGameFromFile(Game *game, u32 stage)
+{
+    for (u32 i = 0; i < 2; ++i)
+    {
+        char path[1024];
+        sprintf(path, "assets/levels/%upart%u.png", stage, i + 1);
 
-    *game = {};
-    LoadLevelFromFile(&game->level[0], path1);
-    LoadLevelFromFile(&game->level[1], path2);
+        game->level[i] = {};
+        LoadLevelFromFile(&game->level[i], path);
+
+        game->player[i] = {};
+        game->player[i].position = game->level[i].spawn;
+    }
 }
 
