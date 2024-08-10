@@ -20,7 +20,6 @@ struct Player {
 
     u32 animation_frame;
     u32 state;
-    float last_frame_change;
 };
 
 enum PlayerStateId{
@@ -38,6 +37,10 @@ struct Goal {
     Vector2 position;
 };
 
+struct Synchronizer {
+    Vector2 position;
+};
+
 struct Level
 {
     u32 width;
@@ -50,7 +53,13 @@ struct Level
     u32 goal_count;
     Goal goals[50];
 
+    u32 synchronizer_count;
+    Synchronizer synchronizers[50];
+
     Vector2 spawn;
+
+    bool fixed_camera;
+    Vector2 fixed_camera_pos;
 };
 
 struct Game
@@ -76,6 +85,9 @@ enum TileId
     Tile_CornerUpRight,
     Tile_CornerDownLeft,
     Tile_CornerDownRight,
+
+    Tile_PlatformLeft,
+    Tile_PlatformRight,
 
     Tile_WallFull,
 
