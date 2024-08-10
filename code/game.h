@@ -76,6 +76,22 @@ struct Game
 
 enum TileId
 {
+    Tile_WallUp,
+    Tile_WallDown,
+    Tile_WallLeft,
+    Tile_WallRight,
+
+    Tile_CornerUpLeft,
+    Tile_CornerUpRight,
+    Tile_CornerDownLeft,
+    Tile_CornerDownRight,
+
+    Tile_PlatformLeft,
+    Tile_PlatformRight,
+
+    Tile_WallFull,
+
+    Tile_Walls,                 // Used to compare type wall
+
     Tile_Air,
-    Tile_Wall
 };

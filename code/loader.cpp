@@ -1,10 +1,116 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "loader.h"
 
 #include "game.h"
 #include "stb_image.h"
+
+
+u8 tileRuleLookup[256];
+
+inline u8 NeighbourMask(u8 a, u8 b, u8 c, 
+                        u8 d,       u8 e, 
+                        u8 f, u8 g, u8 h)
+{
+    return a << 0 | b << 1 | c << 2 | 
+           d << 3 | e << 4 | f << 5 | 
+           g << 6 | h << 7;
+}
+
+void PopulateTileRuleLookup()
+{
+    memset(tileRuleLookup, Tile_WallFull, sizeof(tileRuleLookup));
+
+    // Fuck my life
+    // Edges
+
+    tileRuleLookup[NeighbourMask(0, 0, 0,
+                                 1,    1,
+                                 1, 1, 1)] = Tile_WallUp;
+
+    tileRuleLookup[NeighbourMask(1, 0, 0,
+                                 1,    1,
+                                 1, 1, 1)] = Tile_WallUp;
+    
+    tileRuleLookup[NeighbourMask(0, 0, 1,
+                                 1,    1,
+                                 1, 1, 1)] = Tile_WallUp;
+
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 1,    1,
+                                 1, 0, 0)] = Tile_WallDown;
+    
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 1,    1,
+                                 0, 0, 1)] = Tile_WallDown;
+
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 1,    1,
+                                 0, 0, 0)] = Tile_WallDown;
+
+    tileRuleLookup[NeighbourMask(0, 1, 1,
+                                 0,    1,
+                                 0, 1, 1)] = Tile_WallLeft;
+
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 0,    1,
+                                 0, 1, 1)] = Tile_WallLeft;
+
+    tileRuleLookup[NeighbourMask(0, 1, 1,
+                                 0,    1,
+                                 1, 1, 1)] = Tile_WallLeft;
+
+    tileRuleLookup[NeighbourMask(1, 1, 0,
+                                 1,    0,
+                                 1, 1, 0)] = Tile_WallRight;
+
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 1,    0,
+                                 1, 1, 0)] = Tile_WallRight;
+    
+    tileRuleLookup[NeighbourMask(1, 1, 0,
+                                 1,    0,
+                                 1, 1, 1)] = Tile_WallRight;
+
+    // Corners
+
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 1,    1,
+                                 1, 1, 0)] = Tile_CornerUpLeft;
+
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 1,    1,
+                                 0, 1, 1)] = Tile_CornerUpRight;
+
+    tileRuleLookup[NeighbourMask(1, 1, 0,
+                                 1,    1,
+                                 1, 1, 1)] = Tile_CornerDownLeft;
+
+    tileRuleLookup[NeighbourMask(0, 1, 1,
+                                 1,    1,
+                                 1, 1, 1)] = Tile_CornerDownRight;
+
+    // Platforms
+
+
+}
+
+inline bool IsWallOrOutside(i32 x, i32 y, i32 width, i32 height, u8 *buffer)
+{
+    if (x < 0 || y < 0 || x >= width || y >= height)
+    {
+        return true;
+    }
+
+    return buffer[x + y * width];
+}
+
+inline bool IsWall(i32 x, i32 y, i32 width, i32 height, u8 *buffer)
+{
+    return buffer[x + y * width];
+}
 
 void LoadLevelFromFile(Level *level, char *path)
 {
@@ -20,51 +126,35 @@ void LoadLevelFromFile(Level *level, char *path)
     level->width = width;
     level->height = height;
 
+    u8 wallMask[2048];
     level->fixed_camera = false;
 
     u8 *curr = tmp;
     for (u32 y = 0; y < level->height; ++y) {
         for (u32 x = 0; x < level->width; ++x) {
 
-            if(curr[0] == 0 &&
-               curr[1] == 0 &&
-               curr[2] == 0){
-                level->tiles[x + y * level->width] = Tile_Wall;
-            }
-            else {
-                level->tiles[x + y * level->width] = Tile_Air;
-            }
+            wallMask[x + y * level->width] = (curr[0] == 0 && curr[1] == 0 && curr[2] == 0);
             
-            if(curr[0] == 255 &&
-               curr[1] == 0 &&
-               curr[2] == 0){
+            if(curr[0] == 255 && curr[1] == 0 && curr[2] == 0) {
                 level->spikes[level->spike_count].position.x = x * TILE_SIZE;
                 level->spikes[level->spike_count].position.y = y * TILE_SIZE;
                 level->spike_count++;
             } 
-            else if(curr[0] == 0 &&
-               curr[1] == 255 &&
-               curr[2] == 0){
+            else if(curr[0] == 0 && curr[1] == 255 && curr[2] == 0) {
                 level->goals[level->goal_count].position.x = x * TILE_SIZE;
                 level->goals[level->goal_count].position.y = y * TILE_SIZE;
                 level->goal_count++;
             } 
-            else if(curr[0] == 0 &&
-               curr[1] == 255 &&
-               curr[2] == 255){
+            else if(curr[0] == 0 && curr[1] == 255 && curr[2] == 255) {
                 level->synchronizers[level->synchronizer_count].position.x = x * TILE_SIZE;
                 level->synchronizers[level->synchronizer_count].position.y = y * TILE_SIZE;
                 level->synchronizer_count++;
             } 
-            else if(curr[0] == 0 &&
-               curr[1] == 0 &&
-               curr[2] == 255){
+            else if(curr[0] == 0 && curr[1] == 0 && curr[2] == 255) {
                 level->spawn.x = x * TILE_SIZE + (TILE_SIZE/2);
                 level->spawn.y = y * TILE_SIZE - (TILE_SIZE * 0.75f);
             } 
-            else if(curr[0] == 255 &&
-               curr[1] == 0 &&
-               curr[2] == 255){
+            else if(curr[0] == 255 && curr[1] == 0 && curr[2] == 255) {
                 level->fixed_camera = true;
                 level->fixed_camera_pos.x = x * TILE_SIZE;
                 level->fixed_camera_pos.y = y * TILE_SIZE;
@@ -73,6 +163,32 @@ void LoadLevelFromFile(Level *level, char *path)
         }
     }
 
+    for (i32 x = 0; x < level->width; ++x)
+    {
+        for (i32 y = 0; y < level->height; ++y)
+        {
+            if (!IsWall(x, y, level->width, level->height, wallMask)) 
+            {
+                level->tiles[x + y * width] = Tile_Air;
+                continue;
+            }
+
+            // 0 1 2
+            // 3   4
+            // 5 6 7
+            u8 lookup = 0;
+            lookup |= IsWallOrOutside(x - 1, y - 1, level->width, level->height, wallMask) << 0;
+            lookup |= IsWallOrOutside(x    , y - 1, level->width, level->height, wallMask) << 1;
+            lookup |= IsWallOrOutside(x + 1, y - 1, level->width, level->height, wallMask) << 2;
+            lookup |= IsWallOrOutside(x - 1, y    , level->width, level->height, wallMask) << 3;
+            lookup |= IsWallOrOutside(x + 1, y    , level->width, level->height, wallMask) << 4;
+            lookup |= IsWallOrOutside(x - 1, y + 1, level->width, level->height, wallMask) << 5;
+            lookup |= IsWallOrOutside(x    , y + 1, level->width, level->height, wallMask) << 6;
+            lookup |= IsWallOrOutside(x + 1, y + 1, level->width, level->height, wallMask) << 7;
+
+            level->tiles[x + y * width] = tileRuleLookup[lookup];
+        }
+    }
 }
 
 void LoadGameFromFile(Game *game, u32 stage)
