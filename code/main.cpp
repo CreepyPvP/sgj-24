@@ -130,11 +130,30 @@ i32 main(void)
             for (i32 y = 0; y < level.height; ++y)
             {
                 u32 type = level.tiles[x + y * level.width];
-                if (type) 
+                if (type == Tile_Wall) 
                 {
                     Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
                     DrawRectangleRec(tile, BLUE);
                 }
+
+                if( type == Tile_Player){
+                    player.position = {x * TILE_SIZE, y * TILE_SIZE};
+                    level.tiles[x + y * level.width] = Tile_Air;
+                }
+
+                if (type == Tile_Spikes) 
+                {
+                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+                    DrawRectangleRec(tile, RED);
+                }
+
+                if (type == Tile_Goal) 
+                {
+                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+                    DrawRectangleRec(tile, YELLOW);
+                }
+
+
             }
         }
 
@@ -145,7 +164,7 @@ i32 main(void)
         }
 
         Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
-        DrawRectangleRec(playerRect, RED);
+        DrawRectangleRec(playerRect, GREEN);
 
         EndMode2D();
 

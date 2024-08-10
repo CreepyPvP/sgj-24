@@ -34,14 +34,30 @@ Level LoadFromFile(u32 stage, u32 *buffer)
             if(curr[0] == 255 &&
                curr[1] == 255 &&
                curr[2] == 255){
-                level.tiles[x + y * level.width] = 0;
+                level.tiles[x + y * level.width] = Tile_Air;
             }
             else if(curr[0] == 0 &&
                curr[1] == 0 &&
                curr[2] == 0){
-                level.tiles[x + y * level.width] = 1;
-            } else {
-                level.tiles[x + y * level.width] = 0;
+                level.tiles[x + y * level.width] = Tile_Wall;
+            }
+            else if(curr[0] == 255 &&
+               curr[1] == 0 &&
+               curr[2] == 0){
+                level.tiles[x + y * level.width] = Tile_Spikes;
+            } 
+            else if(curr[0] == 0 &&
+               curr[1] == 255 &&
+               curr[2] == 0){
+                level.tiles[x + y * level.width] = Tile_Goal;
+            } 
+            else if(curr[0] == 0 &&
+               curr[1] == 0 &&
+               curr[2] == 255){
+                level.tiles[x + y * level.width] = Tile_Player;
+            } 
+            else {
+                level.tiles[x + y * level.width] = Tile_Air;
             }
             curr += 3;
         }
