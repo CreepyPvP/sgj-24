@@ -56,8 +56,12 @@ struct Level
 struct Game
 {
     Player player[2];
-    Camera2D camera[2];
     Level level[2];
+
+    Camera2D camera[2];
+    RenderTexture framebuffer[2];
+    bool framebufferValid;
+
     bool horizontal_split;
 };
 
