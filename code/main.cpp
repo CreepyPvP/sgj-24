@@ -7,7 +7,7 @@
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
 
-#define TOTAL_LEVEL_COUNT 2
+#define TOTAL_LEVEL_COUNT 3
 
 u32 current_level;
 
