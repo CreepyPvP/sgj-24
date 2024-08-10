@@ -96,15 +96,12 @@ i32 main(void)
 
     InitWindow(width, height, "Synchronize");
 
-    Player player = {};
-    player.position = { 400, 280 };
-    player.speed = 0;
-    player.canJump = false;
 
     u32 buffer1[2048];
     u32 buffer2[2048];
     Game game = LoadGameFromFile(1, buffer1, buffer2);
     Level level = game.level[0];
+    Player player = game.player[0];
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };

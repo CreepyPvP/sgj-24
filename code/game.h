@@ -20,12 +20,14 @@ struct Level
     u32 width;
     u32 height;
     u32 *tiles;
+    
 };
 
 
 struct Game
 {
     Level level[2];
+    Player player[2];
     bool horizontal_split;
 };
 
