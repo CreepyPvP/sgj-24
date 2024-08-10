@@ -2,6 +2,6 @@
 
 #include "game.h"
 
-Game LoadGameFromFile(u32 stage, u32 *buffer1, u32 *buffer2);
+void LoadGameFromFile(Game* game, u32 stage_number);
 
-Level LoadLevelFromFile(u32 stage, u32 *buffer, bool part_one, Vector2 *player_position);
+void LoadLevelFromFile(Level* level, u32 stage, bool part_one);

@@ -109,22 +109,22 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 
 void UpdatePlayer(Player *player, Level *level, float delta)
 {
-    // if (IsKeyDown(KEY_W)) 
-    // {
-    //     player->position.y -= PLAYER_HOR_SPD * delta;
-    // }
-    // if (IsKeyDown(KEY_S)) 
-    // {
-    //     player->position.y += PLAYER_HOR_SPD * delta;
-    // }
-    // if (IsKeyDown(KEY_A)) 
-    // {
-    //     player->position.x -= PLAYER_HOR_SPD * delta;
-    // }
-    // if (IsKeyDown(KEY_D)) 
-    // {
-    //     player->position.x += PLAYER_HOR_SPD * delta;
-    // }
+    if (IsKeyDown(KEY_W)) 
+    {
+        player->position.y -= PLAYER_HOR_SPD * delta;
+    }
+    if (IsKeyDown(KEY_S)) 
+    {
+        player->position.y += PLAYER_HOR_SPD * delta;
+    }
+    if (IsKeyDown(KEY_A)) 
+    {
+        player->position.x -= PLAYER_HOR_SPD * delta;
+    }
+    if (IsKeyDown(KEY_D)) 
+    {
+        player->position.x += PLAYER_HOR_SPD * delta;
+    }
 
     float horizontal = 0;
 
@@ -182,11 +182,10 @@ i32 main(void)
 
     current_level = 0;
 
-    u32 buffer1[2048];
-    u32 buffer2[2048];
-    Game game = LoadGameFromFile(current_level, buffer1, buffer2);
+    Game game = {};
+    LoadGameFromFile(&game, current_level);
     Level level = game.level[0];
-    Player player = game.player[0];
+    Player player = level.player;
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };
@@ -214,9 +213,9 @@ i32 main(void)
 
         if (IsKeyPressed(KEY_N)){
             current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
-            game = LoadGameFromFile(current_level, buffer1, buffer2);
+            LoadGameFromFile(&game, current_level);
             level = game.level[0];
-            player = game.player[0];
+            player = level.player;
         }
 
         UpdatePlayer(&player, &level, delta);
@@ -238,22 +237,21 @@ i32 main(void)
                     DrawRectangleRec(tile, BLUE);
                     // DrawTexture(texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
                 }
-
-                if (type == Tile_Spikes) 
-                {
-                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    DrawRectangleRec(tile, RED);
-                }
-
-                if (type == Tile_Goal) 
-                {
-                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    DrawRectangleRec(tile, YELLOW);
-                }
-
-
             }
         }
+
+        for (i32 i = 0; i < level.spike_count; ++i)
+        {
+            Rectangle tile = { level.spikes[i].position.x, level.spikes[i].position.y, TILE_SIZE, TILE_SIZE };
+            DrawRectangleRec(tile, RED);
+        }
+
+        for (i32 i = 0; i < level.goal_count; ++i)
+        {
+            Rectangle tile = { level.goals[i].position.x, level.goals[i].position.y, TILE_SIZE, TILE_SIZE };
+            DrawRectangleRec(tile, YELLOW);
+        }
+
 
         Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
         DrawRectangleRec(playerRect, GREEN);
