@@ -31,6 +31,7 @@ enum PlayerStateId{
 
 struct Spikes {
     Vector2 position;
+    u32 rotation;
 };
 
 struct Goal {

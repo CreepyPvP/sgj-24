@@ -33,7 +33,7 @@ DebugRay *AllocRay()
     return &rays[ray_count++];
 }
 
-Rectangle spike[2];
+Rectangle spike[2][4];
 Rectangle tile[2][Tile_Walls];
 Texture2D tileset;
 
@@ -48,8 +48,15 @@ inline Rectangle TileAt(u32 x, u32 y)
 void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
 
-    spike[0] = TileAt(3, 6);
-    spike[1] = TileAt(3, 8);
+    spike[0][0] = TileAt(3, 6);
+    spike[0][1] = TileAt(9, 7);
+    spike[0][2] = TileAt(6, 3);
+    spike[0][3] = TileAt(0, 2);
+
+    spike[1][0] = TileAt(3, 8);
+    spike[1][1] = TileAt(7, 7);
+    spike[1][2] = TileAt(6, 1);
+    spike[1][3] = TileAt(2, 2);
     
     // Blue: 0, Pink: 1
     // Fuck...
@@ -294,6 +301,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     for(u32 i= 0; i < level->spike_count;i++){
         Spikes spike = level->spikes[i];
 
+        //TOOD: Include rotation
         Vector2 left_corner = {spike.position.x, spike.position.y + TILE_SIZE/2 };
         Vector2 right_corner = {spike.position.x + TILE_SIZE, spike.position.y + TILE_SIZE/2 };
         Vector2 peak = {spike.position.x + TILE_SIZE/2 , spike.position.y - TILE_SIZE/2 };
@@ -469,7 +477,7 @@ i32 main(void)
                         player->animation_frame = game.player[1-i].animation_frame;
                     }
                     else{
-                        //TODO: 
+                        //TODO: Notify player somehow that synchronization failed.
                     }
                     
 
@@ -490,7 +498,7 @@ i32 main(void)
 
             for (i32 j = 0; j < level->spike_count; ++j)
             {
-                DrawTextureRec(tileset, spike[i], level->spikes[j].position, WHITE);
+                DrawTextureRec(tileset, spike[i][level->spikes[j].rotation], level->spikes[j].position, WHITE);
             }
 
             for (i32 j = 0; j < level->goal_count; ++j)
