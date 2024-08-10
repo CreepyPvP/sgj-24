@@ -117,7 +117,7 @@ i32 main(void)
 
         ray_count = 0;
 
-        //UpdatePlayer(&player, &level, delta);
+        UpdatePlayer(&player, &level, delta);
         camera.target = { player.position.x, player.position.y };
 
         BeginDrawing();
