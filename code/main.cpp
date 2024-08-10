@@ -3,9 +3,9 @@
 #include "loader.h"
 #include "game_math.h"
 
-#define G 400
-#define PLAYER_JUMP_SPD 350.0f
-#define PLAYER_HOR_SPD 200.0f
+#define G 80.0f
+#define PLAYER_JUMP_SPD -15.0f
+#define PLAYER_HOR_SPD 400.0f
 
 #define TOTAL_LEVEL_COUNT 3
 
@@ -56,7 +56,7 @@ Vector2 DirToVec(Direction direction)
 
 f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 {
-    f32 maxDist = 10 * TILE_SIZE;
+    f32 maxDist = 5 * TILE_SIZE;
     bool horizontal = direction == Direction_Left || direction == Direction_Right;
     Vector2 dir = DirToVec(direction);
 
@@ -104,71 +104,85 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 
     ray->end = Vector2Add(ray->start, Vector2Scale(dir, maxDist));
 
-    return -1;
+    return 100 * TILE_SIZE;
 }
 
 void UpdatePlayer(Player *player, Level *level, float delta)
 {
-    // if (IsKeyDown(KEY_W)) 
-    // {
-    //     player->position.y -= PLAYER_HOR_SPD * delta;
-    // }
-    // if (IsKeyDown(KEY_S)) 
-    // {
-    //     player->position.y += PLAYER_HOR_SPD * delta;
-    // }
-    // if (IsKeyDown(KEY_A)) 
-    // {
-    //     player->position.x -= PLAYER_HOR_SPD * delta;
-    // }
-    // if (IsKeyDown(KEY_D)) 
-    // {
-    //     player->position.x += PLAYER_HOR_SPD * delta;
-    // }
-
-    float horizontal = 0;
-
+    player->vx = 0;
     if (IsKeyDown(KEY_A)) 
     {
-        horizontal -= PLAYER_HOR_SPD * delta;
+        player->vx -= PLAYER_HOR_SPD * delta;
     }
     if (IsKeyDown(KEY_D)) 
     {
-        horizontal += PLAYER_HOR_SPD * delta;
+        player->vx += PLAYER_HOR_SPD * delta;
     }
 
-    if (horizontal > 0)
+    player->vy += G * delta;
+
+    if (player->canJump && IsKeyPressed(KEY_SPACE))
     {
-        horizontal = Min(Raycast(player, level, { TILE_SIZE / 2, 0 }, Direction_Right), horizontal);
-        player->position.x += horizontal;
+        player->canJump = false;
+        player->vy = PLAYER_JUMP_SPD;
+    }
+
+    if (player->vx > 0)
+    {
+        f32 right = Min(
+            Raycast(player, level, { TILE_SIZE / 2, 0.2 * TILE_SIZE }, Direction_Right),
+            // Raycast(player, level, { TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Right),
+            Raycast(player, level, { TILE_SIZE / 2, 1.55 * TILE_SIZE }, Direction_Right)
+        );
+        player->vx = Min(right, player->vx);
     } 
     else 
     {
-        horizontal = Max(-Raycast(player, level, { -TILE_SIZE / 2, 0}, Direction_Left), horizontal);
-        player->position.x += horizontal;
+        f32 left = Min(
+            Raycast(player, level, { -TILE_SIZE / 2, 0.2 * TILE_SIZE }, Direction_Left),
+            // Raycast(player, level, { -TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Left),
+            Raycast(player, level, { -TILE_SIZE / 2, 1.55 * TILE_SIZE }, Direction_Left)
+        );
+        player->vx = Max(-left, player->vx);
     }
+    player->position.x += player->vx;
 
-    // if (IsKeyDown(KEY_SPACE) && player->canJump)
-    // {
-    //     player->speed = -PLAYER_JUMP_SPD;
-    //     player->canJump = false;
-    // }
+    if (player->vy < 0)
+    {
+        f32 up = -Min(
+            Raycast(player, level, {-0.9 * TILE_SIZE / 2, 0}, Direction_Up),
+            Raycast(player, level, {0.9 * TILE_SIZE / 2, 0}, Direction_Up)
+        );
 
-    // bool hitObstacle = false;
-    //
-    // if (!hitObstacle)
-    // {
-    //     player->position.y += player->speed * delta;
-    //     player->speed += G * delta;
-    //     player->canJump = false;
-    // }
-    // else 
-    // {
-    //     player->canJump = true;
-    // }
+        if (up > player->vy)
+        {
+            player->vy = 0;
+            player->position.y += up;
+        }
+        else
+    {
+            player->position.y += player->vy;
+        }
+    }
+    else
+    {
+        f32 down = Min(
+            Raycast(player, level, { -0.9 * TILE_SIZE / 2, 1.75 * TILE_SIZE }, Direction_Down),
+            Raycast(player, level, { 0.9 * TILE_SIZE / 2, 1.75 * TILE_SIZE }, Direction_Down)
+        );
 
-    // Raycast(player, level, {0, 1.75 * TILE_SIZE}, {0, 1});
-    // Raycast(player, level, {0, 0}, {1, 0});
+        if (down < player->vy)
+        {
+            player->vy = 0;
+            player->position.y += down;
+            player->canJump = true;
+        }
+        else
+        {
+            player->position.y += player->vy;
+        }
+    }
+    player->position.y += player->vy;
 }
 
 i32 main(void)
@@ -212,8 +226,16 @@ i32 main(void)
 
         ray_count = 0;
 
-        if (IsKeyPressed(KEY_N)){
+        if (IsKeyPressed(KEY_N))
+        {
             current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
+            game = LoadGameFromFile(current_level, buffer1, buffer2);
+            level = game.level[0];
+            player = game.player[0];
+        }
+
+        if (IsKeyPressed(KEY_R))
+        {
             game = LoadGameFromFile(current_level, buffer1, buffer2);
             level = game.level[0];
             player = game.player[0];
@@ -258,13 +280,17 @@ i32 main(void)
         Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
         DrawRectangleRec(playerRect, GREEN);
 
+#if 1
         for (u32 i = 0; i < ray_count; ++i) 
         {
             DebugRay ray = rays[i];
             DrawLineV(ray.start, ray.end, ray.color);
         }
+#endif
 
         EndMode2D();
+
+        DrawFPS(10, 10);
 
         EndDrawing();
     }
@@ -273,4 +299,3 @@ i32 main(void)
 
     return 0;
 }
-

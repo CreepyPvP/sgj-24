@@ -11,18 +11,11 @@
 Game LoadGameFromFile(u32 stage_number, u32 *buffer1, u32* buffer2){
     Game game = {};
 
-
     game.player[0].position = { 400, 280 };
-    game.player[0].speed = 0;
-    game.player[0].canJump = false;
     game.player[1].position = { 400, 280 };
-    game.player[1].speed = 0;
-    game.player[1].canJump = false;
 
     game.level[0] = LoadLevelFromFile(stage_number, buffer1, true, &game.player[0].position);
     game.level[1] = LoadLevelFromFile(stage_number, buffer2, false, &game.player[1].position);
-    game.horizontal_split = false;
-
     
     return game;
 }

@@ -13,8 +13,9 @@ typedef uint8_t u8;
 
 struct Player {
     Vector2 position;
-    f32 speed;
     bool canJump;
+    f32 vx;
+    f32 vy;
 };
 
 struct Level
