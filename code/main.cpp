@@ -254,13 +254,6 @@ i32 main(void)
     Game game = {};
     LoadGameFromFile(&game, current_level);
 
-    for (u32 i = 0; i < 2; ++i)
-    {
-        game.camera[i].offset = { width / 2.0f, height / 2.0f };
-        game.camera[i].rotation = 0.0f;
-        game.camera[i].zoom = 1.0f;
-    }
-
     SetTargetFPS(60);
 
     // Texture2D texture = LoadTexture("assets/tiles.png");
@@ -281,58 +274,106 @@ i32 main(void)
             LoadGameFromFile(&game, current_level);
         }
 
-        Camera2D *camera = game.camera;
-        Level *level = game.level;
-        Player *player = game.player;
-
-        UpdatePlayer(player, level, delta);
-        camera->target = { player->position.x, player->position.y };
-
-        BeginDrawing();
-        ClearBackground(WHITE);
-
-        BeginMode2D(*camera);
-
-        for (i32 x = 0; x < level->width; ++x)
+        if (!game.framebufferValid)
         {
-            for (i32 y = 0; y < level->height; ++y)
+            UnloadRenderTexture(game.framebuffer[0]);
+            UnloadRenderTexture(game.framebuffer[1]);
+
+            for (u32 i = 0; i < 2; ++i)
             {
-                u32 type = level->tiles[x + y * level->width];
-                if (type == Tile_Wall) 
+                if (game.horizontal_split)
                 {
-                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    DrawTexture(tile1_texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
+                    game.framebuffer[i] = LoadRenderTexture(width, height / 2);
+                    game.camera[i] = {};
+                    game.camera[i].zoom = 1.0f;
+                    game.camera[i].offset = { width / 2.0f, height / 4.0f };
+                }
+                else
+                {
+                    game.framebuffer[i] = LoadRenderTexture(width / 2, height);
+                    game.camera[i] = {};
+                    game.camera[i].zoom = 1.0f;
+                    game.camera[i].offset = { width / 4.0f, height / 2.0f };
                 }
             }
+
+            game.framebufferValid = true;
         }
 
-        for (i32 i = 0; i < level->spike_count; ++i)
+        for (u32 i = 0; i < 2; ++i)
         {
-            Rectangle tile = { level->spikes[i].position.x, level->spikes[i].position.y, TILE_SIZE, TILE_SIZE };
-            DrawTexture(spike1_texture, level->spikes[i].position.x, level->spikes[i].position.y, WHITE);
-        }
+            Camera2D *camera = &game.camera[i];
+            Level *level = &game.level[i];
+            Player *player = &game.player[i];
 
-        for (i32 i = 0; i < level->goal_count; ++i)
-        {
-            Rectangle tile = { level->goals[i].position.x, level->goals[i].position.y, TILE_SIZE, TILE_SIZE };
-            DrawRectangleRec(tile, YELLOW);
-        }
+            UpdatePlayer(player, level, delta);
+            camera->target = { player->position.x, player->position.y };
 
-        Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, 1.75 * TILE_SIZE };
-        DrawRectangleRec(playerRect, GREEN);
+            BeginTextureMode(game.framebuffer[i]);
+            ClearBackground(i == 0? RAYWHITE : SKYBLUE);
+            BeginMode2D(*camera);
 
-#if 1
-        for (u32 i = 0; i < ray_count; ++i) 
-        {
-            DebugRay ray = rays[i];
-            DrawLineV(ray.start, ray.end, ray.color);
-        }
+            for (i32 x = 0; x < level->width; ++x)
+            {
+                for (i32 y = 0; y < level->height; ++y)
+                {
+                    u32 type = level->tiles[x + y * level->width];
+                    if (type == Tile_Wall) 
+                    {
+                        Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+                        DrawTexture(tile1_texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
+                    }
+                }
+            }
+
+            for (i32 i = 0; i < level->spike_count; ++i)
+            {
+                Rectangle tile = { level->spikes[i].position.x, level->spikes[i].position.y, TILE_SIZE, TILE_SIZE };
+                DrawTexture(spike1_texture, level->spikes[i].position.x, level->spikes[i].position.y, WHITE);
+            }
+
+            for (i32 i = 0; i < level->goal_count; ++i)
+            {
+                Rectangle tile = { level->goals[i].position.x, level->goals[i].position.y, TILE_SIZE, TILE_SIZE };
+                DrawRectangleRec(tile, YELLOW);
+            }
+
+            Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, 1.75 * TILE_SIZE };
+            DrawRectangleRec(playerRect, GREEN);
+
+#if 0
+            for (u32 i = 0; i < ray_count; ++i) 
+            {
+                DebugRay ray = rays[i];
+                DrawLineV(ray.start, ray.end, ray.color);
+            }
 #endif
 
-        EndMode2D();
+            EndMode2D();
+            EndTextureMode();
+        }
+
+
+        BeginDrawing();
+
+        ClearBackground(BLACK);
+
+        Rectangle textureRect = {0.0f, 0.0f, game.framebuffer[0].texture.width, -game.framebuffer[1].texture.height};
+        if (game.horizontal_split)
+        {
+            DrawTextureRec(game.framebuffer[0].texture, textureRect, { 0, 0 }, WHITE);
+            DrawTextureRec(game.framebuffer[1].texture, textureRect, { 0, height / 2.0f }, WHITE);
+        }
+        else
+        {
+            DrawTextureRec(game.framebuffer[0].texture, textureRect, { 0, 0 }, WHITE);
+            DrawTextureRec(game.framebuffer[1].texture, textureRect, { width / 2.0f, 0 }, WHITE);
+        }
+
+        // TODO:
+        // DrawRectangle(GetScreenWidth()/2 - 2, 0, 4, GetScreenHeight(), LIGHTGRAY);
 
         DrawFPS(10, 10);
-
         EndDrawing();
     }
 
