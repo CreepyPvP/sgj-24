@@ -14,6 +14,7 @@
 
 u32 current_level;
 
+
 struct DebugRay
 {
     Vector2 start;
@@ -33,6 +34,14 @@ Texture2D tile1_texture;
 Texture2D tile2_texture;
 Texture2D spike1_texture;
 Texture2D spike2_texture;
+
+Texture2D idle_left_texture;
+Texture2D idle_right_texture;
+Texture2D run_left_texture;
+Texture2D run_right_texture;
+
+Rectangle idle_frame_rec;
+Rectangle run_frame_rec;
 
 void LoadAssets(){
     Image tile1_image = LoadImage("assets/tiles1.png");
@@ -58,6 +67,26 @@ void LoadAssets(){
     spike2_texture = LoadTextureFromImage(spike2_image);
     UnloadImage(spike2_image);
     assert(spike2_texture.id != 0);
+
+    Image idle_sheet_image = LoadImage("assets/player/IdleSheet.png");
+    ImageResize(&idle_sheet_image,160,160);
+    idle_right_texture = LoadTextureFromImage(idle_sheet_image);
+    ImageFlipHorizontal(&idle_sheet_image);
+    idle_left_texture = LoadTextureFromImage(idle_sheet_image);
+    UnloadImage(idle_sheet_image);
+    assert(idle_left_texture.id != 0);
+
+    
+    Image run_sheet_image = LoadImage("assets/player/RunSheet.png");
+    ImageResize(&run_sheet_image,240,160);
+    run_right_texture = LoadTextureFromImage(run_sheet_image);
+    ImageFlipHorizontal(&run_sheet_image);
+    run_left_texture = LoadTextureFromImage(run_sheet_image);
+    UnloadImage(run_sheet_image);
+    assert(run_left_texture.id != 0);
+
+    idle_frame_rec = { 0.0f, 0.0f, (float)idle_right_texture.width/2, (float)idle_right_texture.height };
+    run_frame_rec = { 0.0f, 0.0f, (float)run_right_texture.width/3, (float)run_right_texture.height };
 }
 
 enum Direction
@@ -143,8 +172,9 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 
 void UpdatePlayer(Player *player, Level *level, float delta)
 {
-    player->vx = 0;
 
+    player->vx = 0;
+    
     if (IsKeyDown(KEY_A)) 
     {
         player->vx -= PLAYER_HOR_SPD * delta;
@@ -236,6 +266,35 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             player->canJump = false;
         }
     }
+    player->position.y += player->vy;
+
+
+
+
+
+
+    u32 old_state = player->state;
+
+    if(player->vx < 0){
+        player->state = RunLeft;
+    }
+    else if(player->vx > 0){
+        player->state = RunRight;
+    }
+    else{
+        if (player->state == RunLeft){
+            player->state = IdleLeft;
+        }
+        if (player->state == RunRight){
+            player->state = IdleRight;
+        }
+    }
+
+    if(player->state != old_state){
+        player->animation_frame = 0;
+    }else{
+        player->animation_frame++;
+    }
 }
 
 i32 main(void)
@@ -313,6 +372,18 @@ i32 main(void)
             ClearBackground(i == 0? RAYWHITE : SKYBLUE);
             BeginMode2D(*camera);
 
+            for (i32 i = 0; i < level->spike_count; ++i)
+            {
+                Rectangle tile = { level->spikes[i].position.x, level->spikes[i].position.y, TILE_SIZE, TILE_SIZE };
+                DrawTexture(spike1_texture, level->spikes[i].position.x, level->spikes[i].position.y, WHITE);
+            }
+
+            for (i32 i = 0; i < level->goal_count; ++i)
+            {
+                Rectangle tile = { level->goals[i].position.x, level->goals[i].position.y, TILE_SIZE, TILE_SIZE };
+                DrawRectangleRec(tile, YELLOW);
+            }
+
             for (i32 x = 0; x < level->width; ++x)
             {
                 for (i32 y = 0; y < level->height; ++y)
@@ -326,20 +397,25 @@ i32 main(void)
                 }
             }
 
-            for (i32 i = 0; i < level->spike_count; ++i)
-            {
-                Rectangle tile = { level->spikes[i].position.x, level->spikes[i].position.y, TILE_SIZE, TILE_SIZE };
-                DrawTexture(spike1_texture, level->spikes[i].position.x, level->spikes[i].position.y, WHITE);
-            }
-
-            for (i32 i = 0; i < level->goal_count; ++i)
-            {
-                Rectangle tile = { level->goals[i].position.x, level->goals[i].position.y, TILE_SIZE, TILE_SIZE };
-                DrawRectangleRec(tile, YELLOW);
-            }
+            Vector2 player_render_position = {player->position.x - (TILE_SIZE *0.625f), player->position.y - (TILE_SIZE / 2)  };
 
             Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, 1.75 * TILE_SIZE };
             DrawRectangleRec(playerRect, GREEN);
+
+            switch(player->state){
+                case IdleLeft: 
+                    idle_frame_rec.x = (player->animation_frame / 20) * idle_right_texture.width/2;
+                    DrawTextureRec(idle_left_texture, idle_frame_rec, player_render_position, WHITE); break;
+                case IdleRight: 
+                    idle_frame_rec.x = (player->animation_frame / 20) * idle_right_texture.width/2;
+                    DrawTextureRec(idle_right_texture, idle_frame_rec, player_render_position, WHITE); break;
+                case RunLeft: 
+                    run_frame_rec.x = (player->animation_frame / 5) * run_right_texture.width/3;
+                    DrawTextureRec(run_left_texture, run_frame_rec, player_render_position, WHITE); break;
+                case RunRight: 
+                    run_frame_rec.x = (player->animation_frame / 5) * run_right_texture.width/3;
+                    DrawTextureRec(run_right_texture, run_frame_rec, player_render_position, WHITE); break;
+            }
 
 #if 0
             for (u32 i = 0; i < ray_count; ++i) 
