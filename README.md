@@ -9,4 +9,6 @@ Autotiling
     auessere tiles
     pillar tiles
 
+Goal rendering
+
 Background

@@ -241,7 +241,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             Raycast(player, level, {0.9 * TILE_SIZE / 2, 0}, Direction_Up)
         );
 
-        if (up > 0)
+        if (up > 0 || player->vy * delta < up)
         {
             player->vy = 0;
             player->position.y += up;
@@ -258,7 +258,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             Raycast(player, level, { 0.9 * TILE_SIZE / 2, PLAYER_HEIGHT * TILE_SIZE }, Direction_Down)
         );
 
-        if (down < 7)
+        if (down < 7 || player->vy * delta > down)
         {
             player->vy = 0;
             player->position.y += down;
