@@ -33,47 +33,33 @@ DebugRay *AllocRay()
     return &rays[ray_count++];
 }
 
-Texture2D tile1_texture;
-Texture2D tile2_texture;
-Texture2D spike1_texture;
-Texture2D spike2_texture;
+Rectangle spike[2];
+Rectangle wall[2];
+Texture2D tileset;
 
 Texture2D player_sprite_texture;
 Rectangle player_frame_rec;
 
+inline Rectangle TileAt(u32 x, u32 y)
+{
+    return { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+}
 
 void LoadAssets(){
-    Image tile1_image = LoadImage("assets/tiles1.png");
-    ImageResize(&tile1_image,64,64);
-    tile1_texture = LoadTextureFromImage(tile1_image);
-    UnloadImage(tile1_image);
-    assert(tile1_texture.id != 0);
+    tileset = LoadTexture("assets/tileset.png");
 
-    Image tile2_image = LoadImage("assets/tiles2.png");
-    ImageResize(&tile2_image,64,64);
-    tile2_texture = LoadTextureFromImage(tile2_image);
-    UnloadImage(tile2_image);
-    assert(tile2_texture.id != 0);
-    
-    Image spike1_image = LoadImage("assets/spike1.png");
-    ImageResize(&spike1_image,64,64);
-    spike1_texture = LoadTextureFromImage(spike1_image);
-    UnloadImage(spike1_image);
-    assert(spike1_texture.id != 0);
-    
-    Image spike2_image = LoadImage("assets/spike2.png");
-    ImageResize(&spike2_image,64,64);
-    spike2_texture = LoadTextureFromImage(spike2_image);
-    UnloadImage(spike2_image);
-    assert(spike2_texture.id != 0);
+    spike[0] = TileAt(3, 0);
+    spike[1] = TileAt(3, 2);
+
+    wall[0] = TileAt(3, 1);
+    wall[1] = TileAt(3, 3);
 
     Image player_sprite_image = LoadImage("assets/player/SpriteSheet.png");
     ImageResize(&player_sprite_image,384,448);
     player_sprite_texture = LoadTextureFromImage(player_sprite_image);
     UnloadImage(player_sprite_image);
-    assert(player_sprite_texture.id != 0);
 
-    player_frame_rec = {0.0f, 0.0f, (float)player_sprite_texture.width/6, (float)player_sprite_texture.height/4 };
+    player_frame_rec = {0.0f, 0.0f, (float) player_sprite_texture.width / 6, (float) player_sprite_texture.height / 4 };
 }
 
 enum Direction
@@ -383,21 +369,21 @@ i32 main(void)
             Player *player = &game.player[i];
 
             UpdatePlayer(player, level, delta);
+            // camera->target = { game.player->position.x, game.player->position.y };
             camera->target = { player->position.x, player->position.y };
 
             BeginTextureMode(game.framebuffer[i]);
             ClearBackground(i == 0? RAYWHITE : SKYBLUE);
             BeginMode2D(*camera);
 
-            for (i32 i = 0; i < level->spike_count; ++i)
+            for (i32 j = 0; j < level->spike_count; ++j)
             {
-                Rectangle tile = { level->spikes[i].position.x, level->spikes[i].position.y, TILE_SIZE, TILE_SIZE };
-                DrawTexture(spike1_texture, level->spikes[i].position.x, level->spikes[i].position.y, WHITE);
+                DrawTextureRec(tileset, spike[i], level->spikes[j].position, WHITE);
             }
 
-            for (i32 i = 0; i < level->goal_count; ++i)
+            for (i32 j = 0; j < level->goal_count; ++j)
             {
-                Rectangle tile = { level->goals[i].position.x, level->goals[i].position.y, TILE_SIZE, TILE_SIZE };
+                Rectangle tile = { level->goals[j].position.x, level->goals[j].position.y, TILE_SIZE, TILE_SIZE };
                 DrawRectangleRec(tile, YELLOW);
             }
 
@@ -406,10 +392,10 @@ i32 main(void)
                 for (i32 y = 0; y < level->height; ++y)
                 {
                     u32 type = level->tiles[x + y * level->width];
+
                     if (type == Tile_Wall) 
                     {
-                        Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                        DrawTexture(tile1_texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
+                        DrawTextureRec(tileset, wall[i], {x * TILE_SIZE, y * TILE_SIZE}, WHITE);
                     }
                 }
             }
