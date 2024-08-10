@@ -146,9 +146,10 @@ void LoadLevelFromFile(Level *level, char *path)
 
             wallMask[x + y * level->width] = (curr[0] == 0 && curr[1] == 0 && curr[2] == 0);
             
-            if(curr[0] == 255 && curr[1] == 0 && curr[2] == 0) {
+            if(curr[0] == 255 && curr[1] == 0 && curr[2] <= 3) {
                 level->spikes[level->spike_count].position.x = x * TILE_SIZE;
                 level->spikes[level->spike_count].position.y = y * TILE_SIZE;
+                level->spikes[level->spike_count].rotation = curr[2];
                 level->spike_count++;
             } 
             else if(curr[0] == 0 && curr[1] == 255 && curr[2] == 0) {
