@@ -28,13 +28,35 @@ DebugRay *AllocRay()
     return &rays[ray_count++];
 }
 
-Texture2D tile_texture;
+Texture2D tile1_texture;
+Texture2D tile2_texture;
+Texture2D spike1_texture;
+Texture2D spike2_texture;
 
 void LoadAssets(){
-    Image tile_image = LoadImage("assets/tiles.png");
-    ImageResize(&tile_image,64,64);
-    tile_texture = LoadTextureFromImage(tile_image);
-    assert(tile_texture.id != 0);
+    Image tile1_image = LoadImage("assets/tiles1.png");
+    ImageResize(&tile1_image,64,64);
+    tile1_texture = LoadTextureFromImage(tile1_image);
+    UnloadImage(tile1_image);
+    assert(tile1_texture.id != 0);
+
+    Image tile2_image = LoadImage("assets/tiles2.png");
+    ImageResize(&tile2_image,64,64);
+    tile2_texture = LoadTextureFromImage(tile2_image);
+    UnloadImage(tile2_image);
+    assert(tile2_texture.id != 0);
+    
+    Image spike1_image = LoadImage("assets/spike1.png");
+    ImageResize(&spike1_image,64,64);
+    spike1_texture = LoadTextureFromImage(spike1_image);
+    UnloadImage(spike1_image);
+    assert(spike1_texture.id != 0);
+    
+    Image spike2_image = LoadImage("assets/spike2.png");
+    ImageResize(&spike2_image,64,64);
+    spike2_texture = LoadTextureFromImage(spike2_image);
+    UnloadImage(spike2_image);
+    assert(spike2_texture.id != 0);
 }
 
 
@@ -252,8 +274,7 @@ i32 main(void)
                 if (type == Tile_Wall) 
                 {
                     Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    DrawRectangleRec(tile, BLUE);
-                    DrawTexture(tile_texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
+                    DrawTexture(tile1_texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
                 }
             }
         }
@@ -261,7 +282,7 @@ i32 main(void)
         for (i32 i = 0; i < level.spike_count; ++i)
         {
             Rectangle tile = { level.spikes[i].position.x, level.spikes[i].position.y, TILE_SIZE, TILE_SIZE };
-            DrawRectangleRec(tile, RED);
+            DrawTexture(spike1_texture, level.spikes[i].position.x, level.spikes[i].position.y, WHITE);
         }
 
         for (i32 i = 0; i < level.goal_count; ++i)
