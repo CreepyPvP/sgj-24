@@ -453,7 +453,6 @@ i32 main(void)
                     int_y_pos = (int)((player->position.y)  / TILE_SIZE);
                     if(0<= int_x_pos && int_x_pos < level->width && 
                        0 <= int_y_pos && int_y_pos < level->height){
-                        0 <= int_y_pos && int_y_pos < level->height ){
                         u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
                         if(tile < Tile_Walls) {
                             reset_level = true;
