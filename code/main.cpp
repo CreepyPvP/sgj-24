@@ -6,14 +6,10 @@
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
-<<<<<<< HEAD
-#define TILE_SIZE 64.0f
-=======
 
 #define TOTAL_LEVEL_COUNT 2
 
-u8 current_level;
->>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
+u32 current_level;
 
 struct DebugRay
 {
