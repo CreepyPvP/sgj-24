@@ -79,6 +79,10 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
     {
         gridOffset = TILE_SIZE - (((ray->start.x / TILE_SIZE) - (i32) (ray->start.x / TILE_SIZE)) * TILE_SIZE);
     }
+    if (direction == Direction_Right)
+    {
+        gridOffset = ((ray->start.x / TILE_SIZE) - (i32) (ray->start.x / TILE_SIZE)) * TILE_SIZE;
+    }
 
     while (t < maxDist)
     {
@@ -149,7 +153,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
     // }
 
     // Raycast(player, level, {0, 1.75 * TILE_SIZE}, {0, 1});
-    TraceLog(LOG_DEBUG, "%f", Raycast(player, level, {0, 0}, Direction_Left));
+    TraceLog(LOG_DEBUG, "%f", Raycast(player, level, {0, 0}, Direction_Right));
     // Raycast(player, level, {0, 0}, {1, 0});
 }
 
