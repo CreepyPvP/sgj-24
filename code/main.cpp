@@ -168,33 +168,11 @@ i32 main(void)
 
     current_level = 0;
 
-<<<<<<< HEAD
-    u32 buffer[2048];
-    Level level = {};
-    level.width = 10;
-    level.height = 10;
-    level.tiles = buffer;
-
-    for (u32 x = 0; x < level.width; ++x) 
-    {
-        for (u32 y = 0; y < level.height; ++y) 
-        {
-            if (x == 0 || y == (level.height - 1) || y == 0) {
-                level.tiles[x + level.width * y] = 1;
-                continue;
-            }
-            level.tiles[x + level.width * y] = 0;
-        }
-    }
-
-    // Level level = LoadFromFile(1, buffer);
-=======
     u32 buffer1[2048];
     u32 buffer2[2048];
     Game game = LoadGameFromFile(current_level, buffer1, buffer2);
     Level level = game.level[0];
     Player player = game.player[0];
->>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };
@@ -219,6 +197,13 @@ i32 main(void)
         // }
 
         ray_count = 0;
+
+        if (IsKeyPressed(KEY_N)){
+            current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
+            game = LoadGameFromFile(current_level, buffer1, buffer2);
+            level = game.level[0];
+            player = game.player[0];
+        }
 
         UpdatePlayer(&player, &level, delta);
         camera.target = { player.position.x, player.position.y };
@@ -256,19 +241,8 @@ i32 main(void)
             }
         }
 
-<<<<<<< HEAD
         Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
-        DrawRectangleRec(playerRect, RED);
-=======
-        //Go to next level if N is pressed.
-        if(IsKeyPressed(KEY_N)){
-            current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
-            game = LoadGameFromFile(current_level, buffer1, buffer2);
-            level = game.level[0];
-            player = game.player[0];
-        }
-
->>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
+        DrawRectangleRec(playerRect, GREEN);
 
         for (u32 i = 0; i < ray_count; ++i) 
         {
@@ -276,12 +250,6 @@ i32 main(void)
             DrawLineV(ray.start, ray.end, ray.color);
         }
 
-<<<<<<< HEAD
-=======
-        Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
-        DrawRectangleRec(playerRect, GREEN);
-
->>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
         EndMode2D();
 
         EndDrawing();
