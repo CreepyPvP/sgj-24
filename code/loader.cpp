@@ -50,6 +50,13 @@ void LoadLevelFromFile(Level *level, char *path)
                 level->goal_count++;
             } 
             else if(curr[0] == 0 &&
+               curr[1] == 255 &&
+               curr[2] == 255){
+                level->synchronizers[level->synchronizer_count].position.x = x * TILE_SIZE;
+                level->synchronizers[level->synchronizer_count].position.y = y * TILE_SIZE;
+                level->synchronizer_count++;
+            } 
+            else if(curr[0] == 0 &&
                curr[1] == 0 &&
                curr[2] == 255){
                 level->spawn.x = x * TILE_SIZE + (TILE_SIZE/2);

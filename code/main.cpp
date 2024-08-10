@@ -11,7 +11,7 @@
 #define PLAYER_HOR_SPD 450.0f
 #define PLAYER_HEIGHT 1.65f
 
-#define TOTAL_LEVEL_COUNT 3
+#define TOTAL_LEVEL_COUNT 4
 
 u32 current_level;
 
@@ -284,6 +284,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
         }
     }
 
+
 }
 
 i32 main(void)
@@ -386,7 +387,37 @@ i32 main(void)
             Player *player = &game.player[i];
 
             UpdatePlayer(player, level, delta);
-            // camera->target = { game.player->position.x, game.player->position.y };
+
+            //Synchronizer Update
+            for(u32 j = 0; j < level->synchronizer_count; j++){
+                if(aabb_intersects_aabb(level->synchronizers[j].position, {TILE_SIZE, TILE_SIZE} ,
+                                    {player->position.x - (TILE_SIZE/2.0f) , player->position.y}, 
+                                    {TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE}))
+                {
+                    player->position.x = game.player[1-i].position.x;
+                    player->position.y = game.player[1-i].position.y;
+                    player->vx = game.player[1-i].vx;
+                    player->vy = game.player[1-i].vy;
+                    player->canJump = game.player[1-i].canJump;
+                    player->state = game.player[1-i].state;
+                    player->animation_frame = game.player[1-i].animation_frame;
+
+
+                    u32 int_x_pos = (int)(player->position.x / TILE_SIZE);
+                    u32 int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT /2 )  / TILE_SIZE);
+                    u32 tile = level->tiles[int_x_pos + level->width * int_y_pos];
+                    if(tile == Tile_Wall){
+                        reset_level = true;
+                    }
+
+                }
+            }
+
+            //End Synchronizer Update
+
+
+
+
             if(level->fixed_camera){
                 camera->target = level->fixed_camera_pos;
             }else{
@@ -406,6 +437,12 @@ i32 main(void)
             {
                 Rectangle tile = { level->goals[j].position.x, level->goals[j].position.y, TILE_SIZE, TILE_SIZE };
                 DrawRectangleRec(tile, YELLOW);
+            }
+            
+            for (i32 j = 0; j < level->synchronizer_count; ++j)
+            {
+                Rectangle tile = { level->synchronizers[j].position.x, level->synchronizers[j].position.y, TILE_SIZE, TILE_SIZE };
+                DrawRectangleRec(tile, GREEN);
             }
 
             for (i32 x = 0; x < level->width; ++x)
