@@ -168,7 +168,16 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             Raycast(player, level, { TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Right),
             Raycast(player, level, { TILE_SIZE / 2, 1.55 * TILE_SIZE }, Direction_Right)
         );
-        player->vx = Min(right, player->vx);
+
+        if (right < player->vx)
+        {
+            player->vx = 0;
+            player->position.x += right;
+        }
+        else
+        {
+            player->position.x += player->vx * delta;
+        }
     } 
     else 
     {
@@ -177,7 +186,16 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             Raycast(player, level, { -TILE_SIZE / 2, 0.8 * TILE_SIZE }, Direction_Left),
             Raycast(player, level, { -TILE_SIZE / 2, 1.55 * TILE_SIZE }, Direction_Left)
         );
-        player->vx = Max(-left, player->vx);
+
+        if (-left > player->vx)
+        {
+            player->vx = 0;
+            player->position.x += -left;
+        }
+        else
+        {
+            player->position.x += player->vx * delta;
+        }
     }
     player->position.x += player->vx;
 
