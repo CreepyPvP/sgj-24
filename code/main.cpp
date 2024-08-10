@@ -34,7 +34,7 @@ DebugRay *AllocRay()
 }
 
 Rectangle spike[2];
-Rectangle wall[2];
+Rectangle tile[2][Tile_Walls];
 Texture2D tileset;
 
 Texture2D player_sprite_texture;
@@ -48,11 +48,29 @@ inline Rectangle TileAt(u32 x, u32 y)
 void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
 
-    spike[0] = TileAt(3, 0);
-    spike[1] = TileAt(3, 2);
+    spike[0] = TileAt(3, 6);
+    spike[1] = TileAt(3, 8);
+    
+    // Blue: 0, Pink: 1
+    // Fuck...
+    tile[0][Tile_WallUp] = TileAt(1, 6);
+    tile[1][Tile_WallUp] = TileAt(1, 8);
+    tile[0][Tile_WallDown] = TileAt(8, 3);
+    tile[1][Tile_WallDown] = TileAt(8, 1);
+    tile[0][Tile_WallLeft] = TileAt(0, 4);
+    tile[1][Tile_WallLeft] = TileAt(2, 4);
+    tile[0][Tile_WallRight] = TileAt(9, 5);
+    tile[1][Tile_WallRight] = TileAt(7, 5);
 
-    wall[0] = TileAt(3, 1);
-    wall[1] = TileAt(3, 3);
+    tile[0][Tile_CornerUpLeft] = TileAt(4, 7);
+    tile[1][Tile_CornerUpLeft] = TileAt(4, 9);
+    tile[0][Tile_CornerUpRight] = TileAt(8, 8);
+    tile[1][Tile_CornerUpRight] = TileAt(6, 8);
+    tile[0][Tile_CornerDownLeft] = TileAt(2, 2);
+    tile[1][Tile_CornerDownLeft] = TileAt(4, 2);
+
+    tile[0][Tile_WallFull] = TileAt(1, 2);
+    tile[1][Tile_WallFull] = TileAt(3, 2);
 
     Image player_sprite_image = LoadImage("assets/player/SpriteSheet.png");
     ImageResize(&player_sprite_image,384,448);
@@ -129,7 +147,7 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 
         if (tileX >= 0 && tileX < level->width && tileY >= 0 && tileY < level->height)
         {
-            if (level->tiles[tileX + tileY * level->width]) {
+            if (level->tiles[tileX + tileY * level->width] < Tile_Walls) {
                 ray->end = Vector2Add(ray->start, Vector2Scale(dir, t - gridOffset));
                 return t - gridOffset;
             }
@@ -297,6 +315,7 @@ i32 main(void)
     InitWindow(width, height, "Synchronize");
 
     LoadAssets();
+    PopulateTileRuleLookup();
 
     current_level = 0;
     reset_level = false;
@@ -404,15 +423,17 @@ i32 main(void)
                 DrawRectangleRec(tile, YELLOW);
             }
 
+            // Render Tiles
+
             for (i32 x = 0; x < level->width; ++x)
             {
                 for (i32 y = 0; y < level->height; ++y)
                 {
                     u32 type = level->tiles[x + y * level->width];
 
-                    if (type == Tile_Wall) 
+                    if (type < Tile_Walls) 
                     {
-                        DrawTextureRec(tileset, wall[i], {x * TILE_SIZE, y * TILE_SIZE}, WHITE);
+                        DrawTextureRec(tileset, tile[i][type], {x * TILE_SIZE, y * TILE_SIZE}, WHITE);
                     }
                 }
             }
