@@ -8,7 +8,7 @@
 
 #define G 1500.0f
 #define PLAYER_JUMP_SPD -800.0f
-#define PLAYER_HOR_SPD 600.0f
+#define PLAYER_HOR_SPD 400.0f
 
 #define TOTAL_LEVEL_COUNT 3
 
@@ -207,7 +207,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
         }
         else
         {
-            player->position.x += player->vx * delta;
+            player->position.x += player->vx;
         }
     } 
     else 
@@ -225,10 +225,9 @@ void UpdatePlayer(Player *player, Level *level, float delta)
         }
         else
         {
-            player->position.x += player->vx * delta;
+            player->position.x += player->vx;
         }
     }
-    player->position.x += player->vx;
 
     if (player->vy < 0)
     {
@@ -266,22 +265,18 @@ void UpdatePlayer(Player *player, Level *level, float delta)
             player->canJump = false;
         }
     }
-    player->position.y += player->vy;
-
-
-
-
-
+    
+    // animation
 
     u32 old_state = player->state;
 
-    if(player->vx < 0){
+    if (player->vx < 0) {
         player->state = RunLeft;
     }
-    else if(player->vx > 0){
+    else if (player->vx > 0) {
         player->state = RunRight;
     }
-    else{
+    else {
         if (player->state == RunLeft){
             player->state = IdleLeft;
         }
@@ -290,9 +285,9 @@ void UpdatePlayer(Player *player, Level *level, float delta)
         }
     }
 
-    if(player->state != old_state){
+    if (player->state != old_state) {
         player->animation_frame = 0;
-    }else{
+    } else {
         player->animation_frame++;
     }
 }
