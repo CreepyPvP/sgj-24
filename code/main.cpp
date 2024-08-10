@@ -6,7 +6,14 @@
 #define G 400
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
+<<<<<<< HEAD
 #define TILE_SIZE 64.0f
+=======
+
+#define TOTAL_LEVEL_COUNT 2
+
+u8 current_level;
+>>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
 
 struct DebugRay
 {
@@ -159,11 +166,9 @@ i32 main(void)
 
     InitWindow(width, height, "Synchronize");
 
-    Player player = {};
-    player.position = { 400, 280 };
-    player.speed = 0;
-    player.canJump = false;
+    current_level = 0;
 
+<<<<<<< HEAD
     u32 buffer[2048];
     Level level = {};
     level.width = 10;
@@ -183,6 +188,13 @@ i32 main(void)
     }
 
     // Level level = LoadFromFile(1, buffer);
+=======
+    u32 buffer1[2048];
+    u32 buffer2[2048];
+    Game game = LoadGameFromFile(current_level, buffer1, buffer2);
+    Level level = game.level[0];
+    Player player = game.player[0];
+>>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };
@@ -221,17 +233,42 @@ i32 main(void)
             for (i32 y = 0; y < level.height; ++y)
             {
                 u32 type = level.tiles[x + y * level.width];
-                if (type) 
+                if (type == Tile_Wall) 
                 {
                     Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
                     DrawRectangleRec(tile, BLUE);
                     // DrawTexture(texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
                 }
+
+                if (type == Tile_Spikes) 
+                {
+                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+                    DrawRectangleRec(tile, RED);
+                }
+
+                if (type == Tile_Goal) 
+                {
+                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+                    DrawRectangleRec(tile, YELLOW);
+                }
+
+
             }
         }
 
+<<<<<<< HEAD
         Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
         DrawRectangleRec(playerRect, RED);
+=======
+        //Go to next level if N is pressed.
+        if(IsKeyPressed(KEY_N)){
+            current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
+            game = LoadGameFromFile(current_level, buffer1, buffer2);
+            level = game.level[0];
+            player = game.player[0];
+        }
+
+>>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
 
         for (u32 i = 0; i < ray_count; ++i) 
         {
@@ -239,6 +276,12 @@ i32 main(void)
             DrawLineV(ray.start, ray.end, ray.color);
         }
 
+<<<<<<< HEAD
+=======
+        Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
+        DrawRectangleRec(playerRect, GREEN);
+
+>>>>>>> 0060a03859e7b58fd72016d9c65c5d868108acfe
         EndMode2D();
 
         EndDrawing();
