@@ -24,17 +24,17 @@ Level LoadFromFile(u32 stage, u32 *buffer)
     level.width = width;
     level.height = height;
 
-    u8* curr = tmp;
-    for (u32 y = 0; y < level.height; ++y) {
-        for (u32 x = 0; x < level.width; ++x) {
-            if(curr[0] == 0 &&
-               curr[1] == 0 &&
-               curr[2] == 0){
-                level.tiles[x + y * level.width] = 1;
-            }
-            curr += 3;
-        }
-    }
+    // u8* curr = tmp;
+    // for (u32 y = 0; y < level.height; ++y) {
+    //     for (u32 x = 0; x < level.width; ++x) {
+    //         if(curr[0] == 0 &&
+    //            curr[1] == 0 &&
+    //            curr[2] == 0){
+    //             level.tiles[x + y * level.width] = 1;
+    //         }
+    //         curr += 3;
+    //     }
+    // }
 
     return level;
 }

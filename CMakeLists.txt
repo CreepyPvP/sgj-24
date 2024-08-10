@@ -6,6 +6,8 @@ project(
 
 set(ROOT_DIR ${PROJECT_SOURCE_DIR})
 
+# add_definitions( -DSUPPORT_FILEFORMAT_PNG )
+
 set(RAYLIB_DIR raylib)
 add_subdirectory(${RAYLIB_DIR})
 
