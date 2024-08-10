@@ -16,6 +16,17 @@ struct Player {
     bool canJump;
     f32 vx;
     f32 vy;
+
+    u32 animation_frame;
+    u32 state;
+    float last_frame_change;
+};
+
+enum PlayerStateId{
+    IdleRight = 0,
+    IdleLeft = 1,
+    RunRight = 2,
+    RunLeft = 3
 };
 
 struct Spikes {
