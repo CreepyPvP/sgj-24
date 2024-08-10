@@ -51,6 +51,9 @@ struct Level
     Goal goals[50];
 
     Vector2 spawn;
+
+    bool fixed_camera;
+    Vector2 fixed_camera_pos;
 };
 
 struct Game

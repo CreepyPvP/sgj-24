@@ -387,7 +387,11 @@ i32 main(void)
 
             UpdatePlayer(player, level, delta);
             // camera->target = { game.player->position.x, game.player->position.y };
-            camera->target = Vector2Lerp(player->position, game.player[0].position, 0);
+            if(level->fixed_camera){
+                camera->target = level->fixed_camera_pos;
+            }else{
+                camera->target = Vector2Lerp(player->position, game.player[0].position, 0);
+            }
 
             BeginTextureMode(game.framebuffer[i]);
             ClearBackground(i == 0? RAYWHITE : SKYBLUE);

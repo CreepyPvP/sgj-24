@@ -20,6 +20,8 @@ void LoadLevelFromFile(Level *level, char *path)
     level->width = width;
     level->height = height;
 
+    level->fixed_camera = false;
+
     u8 *curr = tmp;
     for (u32 y = 0; y < level->height; ++y) {
         for (u32 x = 0; x < level->width; ++x) {
@@ -53,6 +55,13 @@ void LoadLevelFromFile(Level *level, char *path)
                 level->spawn.x = x * TILE_SIZE + (TILE_SIZE/2);
                 level->spawn.y = y * TILE_SIZE - (TILE_SIZE * 0.75f);
             } 
+            else if(curr[0] == 255 &&
+               curr[1] == 0 &&
+               curr[2] == 255){
+                level->fixed_camera = true;
+                level->fixed_camera_pos.x = x * TILE_SIZE;
+                level->fixed_camera_pos.y = y * TILE_SIZE;
+            } 
             curr += 3;
         }
     }
@@ -61,7 +70,7 @@ void LoadLevelFromFile(Level *level, char *path)
 
 void LoadGameFromFile(Game *game, u32 stage)
 {
-    game->horizontal_split = false;
+    game->horizontal_split = true;
     for (u32 i = 0; i < 2; ++i)
     {
         char path[1024];
