@@ -11,7 +11,7 @@
 #define PLAYER_HOR_SPD 450.0f
 #define PLAYER_HEIGHT 1.65f
 
-#define TOTAL_LEVEL_COUNT 4
+#define TOTAL_LEVEL_COUNT 5
 
 u32 current_level;
 
@@ -405,10 +405,14 @@ i32 main(void)
 
                     u32 int_x_pos = (int)(player->position.x / TILE_SIZE);
                     u32 int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT /2 )  / TILE_SIZE);
-                    u32 tile = level->tiles[int_x_pos + level->width * int_y_pos];
-                    if(tile == Tile_Wall){
-                        reset_level = true;
+                    if(0<= int_x_pos && int_x_pos < level->width && 
+                        0 <= int_y_pos < level->height){
+                        u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        if(tile == Tile_Wall){
+                            reset_level = true;
+                        }
                     }
+                    
 
                 }
             }
