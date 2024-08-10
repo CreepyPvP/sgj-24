@@ -107,8 +107,6 @@ i32 main(void)
     Level level = game.level[0];
     Player player = game.player[0];
 
-    bool just_started_level = true;
-
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };
     camera.rotation = 0.0f;
@@ -157,18 +155,12 @@ i32 main(void)
             }
         }
 
-
         //Go to next level if N is pressed.
-        if(IsKeyDown(KEY_N)){
-            if(!just_started_level){
-                current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
-                game = LoadGameFromFile(current_level, buffer1, buffer2);
-                level = game.level[0];
-                player = game.player[0];
-                just_started_level = true;
-            }
-        }else{
-            just_started_level = false;
+        if(IsKeyPressed(KEY_N)){
+            current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
+            game = LoadGameFromFile(current_level, buffer1, buffer2);
+            level = game.level[0];
+            player = game.player[0];
         }
 
 
