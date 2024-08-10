@@ -18,25 +18,37 @@ struct Player {
     f32 vy;
 };
 
+struct Spikes {
+    Vector2 position;
+};
+
+struct Goal {
+    Vector2 position;
+};
+
 struct Level
 {
     u32 width;
     u32 height;
-    u32 *tiles;
+    u32 tiles[2048];
+
+    Spikes spikes[50];
+    Goal goals[50];
+    Player player;
+
+    u32 spike_count;
+    u32 goal_count;
     
 };
 
 struct Game
 {
     Level level[2];
-    Player player[2];
     bool horizontal_split;
 };
 
 enum TileId
 {
     Tile_Air,
-    Tile_Wall,
-    Tile_Goal,
-    Tile_Spikes,
+    Tile_Wall
 };

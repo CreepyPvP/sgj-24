@@ -2,6 +2,8 @@
 #include "game.h"
 #include "loader.h"
 #include "game_math.h"
+#include <cassert>
+#include <stdio.h>
 
 #define G 80.0f
 #define PLAYER_JUMP_SPD -15.0f
@@ -24,6 +26,37 @@ DebugRay rays[100];
 DebugRay *AllocRay()
 {
     return &rays[ray_count++];
+}
+
+Texture2D tile1_texture;
+Texture2D tile2_texture;
+Texture2D spike1_texture;
+Texture2D spike2_texture;
+
+void LoadAssets(){
+    Image tile1_image = LoadImage("assets/tiles1.png");
+    ImageResize(&tile1_image,64,64);
+    tile1_texture = LoadTextureFromImage(tile1_image);
+    UnloadImage(tile1_image);
+    assert(tile1_texture.id != 0);
+
+    Image tile2_image = LoadImage("assets/tiles2.png");
+    ImageResize(&tile2_image,64,64);
+    tile2_texture = LoadTextureFromImage(tile2_image);
+    UnloadImage(tile2_image);
+    assert(tile2_texture.id != 0);
+    
+    Image spike1_image = LoadImage("assets/spike1.png");
+    ImageResize(&spike1_image,64,64);
+    spike1_texture = LoadTextureFromImage(spike1_image);
+    UnloadImage(spike1_image);
+    assert(spike1_texture.id != 0);
+    
+    Image spike2_image = LoadImage("assets/spike2.png");
+    ImageResize(&spike2_image,64,64);
+    spike2_texture = LoadTextureFromImage(spike2_image);
+    UnloadImage(spike2_image);
+    assert(spike2_texture.id != 0);
 }
 
 enum Direction
@@ -110,6 +143,7 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 void UpdatePlayer(Player *player, Level *level, float delta)
 {
     player->vx = 0;
+
     if (IsKeyDown(KEY_A)) 
     {
         player->vx -= PLAYER_HOR_SPD * delta;
@@ -194,13 +228,14 @@ i32 main(void)
 
     InitWindow(width, height, "Synchronize");
 
+    LoadAssets();
+
     current_level = 0;
 
-    u32 buffer1[2048];
-    u32 buffer2[2048];
-    Game game = LoadGameFromFile(current_level, buffer1, buffer2);
+    Game game = {};
+    LoadGameFromFile(&game, current_level);
     Level level = game.level[0];
-    Player player = game.player[0];
+    Player player = level.player;
 
     Camera2D camera = {};
     camera.offset = { width / 2.0f, height / 2.0f };
@@ -229,16 +264,16 @@ i32 main(void)
         if (IsKeyPressed(KEY_N))
         {
             current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
-            game = LoadGameFromFile(current_level, buffer1, buffer2);
+            LoadGameFromFile(&game, current_level);
             level = game.level[0];
-            player = game.player[0];
+            player = level.player;
         }
 
         if (IsKeyPressed(KEY_R))
         {
-            game = LoadGameFromFile(current_level, buffer1, buffer2);
+            LoadGameFromFile(&game, current_level);
             level = game.level[0];
-            player = game.player[0];
+            player = level.player;
         }
 
         UpdatePlayer(&player, &level, delta);
@@ -257,25 +292,23 @@ i32 main(void)
                 if (type == Tile_Wall) 
                 {
                     Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    DrawRectangleRec(tile, BLUE);
-                    // DrawTexture(texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
+                    DrawTexture(tile1_texture, x * TILE_SIZE, y * TILE_SIZE, WHITE);
                 }
-
-                if (type == Tile_Spikes) 
-                {
-                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    DrawRectangleRec(tile, RED);
-                }
-
-                if (type == Tile_Goal) 
-                {
-                    Rectangle tile = { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
-                    DrawRectangleRec(tile, YELLOW);
-                }
-
-
             }
         }
+
+        for (i32 i = 0; i < level.spike_count; ++i)
+        {
+            Rectangle tile = { level.spikes[i].position.x, level.spikes[i].position.y, TILE_SIZE, TILE_SIZE };
+            DrawTexture(spike1_texture, level.spikes[i].position.x, level.spikes[i].position.y, WHITE);
+        }
+
+        for (i32 i = 0; i < level.goal_count; ++i)
+        {
+            Rectangle tile = { level.goals[i].position.x, level.goals[i].position.y, TILE_SIZE, TILE_SIZE };
+            DrawRectangleRec(tile, YELLOW);
+        }
+
 
         Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
         DrawRectangleRec(playerRect, GREEN);
