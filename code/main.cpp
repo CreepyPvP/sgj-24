@@ -11,7 +11,7 @@
 #define PLAYER_HOR_SPD 450.0f
 #define PLAYER_HEIGHT 1.65f
 
-#define TOTAL_LEVEL_COUNT 6
+#define TOTAL_LEVEL_COUNT 7
 
 u32 current_level;
 
