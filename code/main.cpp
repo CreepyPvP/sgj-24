@@ -143,22 +143,22 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 
 void UpdatePlayer(Player *player, Level *level, float delta)
 {
-    if (IsKeyDown(KEY_W)) 
-    {
-        player->position.y -= PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_S)) 
-    {
-        player->position.y += PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_A)) 
-    {
-        player->position.x -= PLAYER_HOR_SPD * delta;
-    }
-    if (IsKeyDown(KEY_D)) 
-    {
-        player->position.x += PLAYER_HOR_SPD * delta;
-    }
+    // if (IsKeyDown(KEY_W)) 
+    // {
+    //     player->position.y -= PLAYER_HOR_SPD * delta;
+    // }
+    // if (IsKeyDown(KEY_S)) 
+    // {
+    //     player->position.y += PLAYER_HOR_SPD * delta;
+    // }
+    // if (IsKeyDown(KEY_A)) 
+    // {
+    //     player->position.x -= PLAYER_HOR_SPD * delta;
+    // }
+    // if (IsKeyDown(KEY_D)) 
+    // {
+    //     player->position.x += PLAYER_HOR_SPD * delta;
+    // }
 
     float horizontal = 0;
 
