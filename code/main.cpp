@@ -382,8 +382,6 @@ i32 main(void)
                 }
             }
 
-            Vector2 player_render_position = {player->position.x - (TILE_SIZE *0.625f), player->position.y - (TILE_SIZE / 2)  };
-
         Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE };
         
         DrawRectangleRec(playerRect, GREEN);
