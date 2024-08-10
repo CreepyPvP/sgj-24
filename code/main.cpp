@@ -378,24 +378,24 @@ i32 main(void)
         }
 
 
-        Rectangle playerRect = { player.position.x - TILE_SIZE / 2, player.position.y, TILE_SIZE, 1.75 * TILE_SIZE };
+        Rectangle playerRect = { player->position.x - TILE_SIZE / 2, player->position.y, TILE_SIZE, 1.75 * TILE_SIZE };
         
         //DrawRectangleRec(playerRect, GREEN);
 
-        Vector2 player_render_position = {player.position.x - (TILE_SIZE *0.625f), player.position.y - (TILE_SIZE / 2)  };
+        Vector2 player_render_position = {player->position.x - (TILE_SIZE *0.625f), player->position.y - (TILE_SIZE / 2)  };
 
-        switch(player.state){
+        switch(player->state){
             case IdleLeft : 
-                idle_frame_rec.x = (player.animation_frame / 20) * idle_right_texture.width/2;
+                idle_frame_rec.x = (player->animation_frame / 20) * idle_right_texture.width/2;
                 DrawTextureRec(idle_left_texture, idle_frame_rec, player_render_position, WHITE); break;
             case IdleRight : 
-                idle_frame_rec.x = (player.animation_frame / 20) * idle_right_texture.width/2;
+                idle_frame_rec.x = (player->animation_frame / 20) * idle_right_texture.width/2;
                 DrawTextureRec(idle_right_texture, idle_frame_rec, player_render_position, WHITE); break;
             case RunLeft : 
-                run_frame_rec.x = (player.animation_frame / 5) * run_right_texture.width/3;
+                run_frame_rec.x = (player->animation_frame / 5) * run_right_texture.width/3;
                 DrawTextureRec(run_left_texture, run_frame_rec, player_render_position, WHITE); break;
             case RunRight : 
-                run_frame_rec.x = (player.animation_frame / 5) * run_right_texture.width/3;
+                run_frame_rec.x = (player->animation_frame / 5) * run_right_texture.width/3;
                 DrawTextureRec(run_right_texture, run_frame_rec, player_render_position, WHITE); break;
         }
 
