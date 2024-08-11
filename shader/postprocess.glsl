@@ -31,4 +31,6 @@ void main()
     }
 
     finalColor = ((sum / (samples * samples)) + source) * colDiffuse;
+
+    finalColor.rgb = finalColor.rgb / (finalColor.rgb + vec3(1));
 }

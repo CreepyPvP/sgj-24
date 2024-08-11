@@ -93,6 +93,25 @@ void PopulateTileRuleLookup()
                                  1,    1,
                                  1, 1, 1)] = Tile_CornerDownRight;
 
+    // Outer edges
+    
+
+    tileRuleLookup[NeighbourMask(0, 0, 0,
+                                 0,    1,
+                                 0, 1, 1)] = Tile_OuterUpLeft;
+    
+    tileRuleLookup[NeighbourMask(0, 0, 0,
+                                 1,    0,
+                                 1, 1, 0)] = Tile_OuterUpRight;
+    
+    tileRuleLookup[NeighbourMask(0, 1, 1,
+                                 0,    1,
+                                 0, 0, 0)] = Tile_OuterDownLeft;
+
+    tileRuleLookup[NeighbourMask(1, 1, 0,
+                                 1,    0,
+                                 0, 0, 0)] = Tile_OuterDownRight;
+
     // Platforms
 
 

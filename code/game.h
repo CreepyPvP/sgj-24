@@ -103,6 +103,11 @@ enum TileId
     Tile_CornerDownLeft,
     Tile_CornerDownRight,
 
+    Tile_OuterUpLeft,
+    Tile_OuterUpRight,
+    Tile_OuterDownLeft,
+    Tile_OuterDownRight,
+
     Tile_PlatformLeft,
     Tile_PlatformRight,
 
