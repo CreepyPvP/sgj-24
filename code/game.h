@@ -15,7 +15,8 @@ typedef uint8_t u8;
 #define STAR_COUNT 64
 #define RAIN_PARTICLE_COUNT 64
 
-struct Player {
+struct Player 
+{
     Vector2 position;
     bool canJump;
     f32 vx;
@@ -25,23 +26,27 @@ struct Player {
     u32 state;
 };
 
-enum PlayerStateId{
-    IdleRight = 0,
-    IdleLeft = 1,
-    RunRight = 2,
-    RunLeft = 3
+enum PlayerStateId
+{
+    IdleRight,
+    IdleLeft,
+    RunRight,
+    RunLeft
 };
 
-struct Spikes {
+struct Spikes 
+{
     Vector2 position;
     u32 rotation;
 };
 
-struct Goal {
+struct Goal 
+{
     Vector2 position;
 };
 
-struct Synchronizer {
+struct Synchronizer 
+{
     Vector2 position;
     bool playing_music;
 };
@@ -110,6 +115,11 @@ enum TileId
     Tile_CornerUpRight,
     Tile_CornerDownLeft,
     Tile_CornerDownRight,
+
+    Tile_DoubleCornerUp,
+    Tile_DoubleCornerDown,
+    Tile_DoubleCornerLeft,
+    Tile_DoubleCornerRight,
 
     Tile_OuterUpLeft,
     Tile_OuterUpRight,

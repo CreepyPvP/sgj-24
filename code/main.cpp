@@ -52,6 +52,9 @@ DebugRay *AllocRay()
 Rectangle spike[2][4];
 Rectangle tile[2][Tile_Walls];
 Texture2D tileset;
+Rectangle goal_rect[2];
+Rectangle synchronizer_rect[2];
+u32 synchronizer_animation_frame;
 
 Texture2D player_sprite_texture;
 Rectangle player_frame_rec;
@@ -70,6 +73,13 @@ inline Rectangle TileAt(u32 x, u32 y)
 
 void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
+
+    goal_rect[0] = TileAt(2,7);
+    goal_rect[1] = TileAt(2,9);
+
+    synchronizer_rect[0] = TileAt(0,9);
+    synchronizer_rect[1] = TileAt(1,9);
+    synchronizer_animation_frame = 0;
 
     spike[0][0] = TileAt(3, 6);
     spike[1][0] = TileAt(3, 8);
@@ -99,6 +109,15 @@ void LoadAssets(){
     tile[1][Tile_CornerDownLeft] = TileAt(0, 4);
     tile[0][Tile_CornerDownRight] = TileAt(4, 7);
     tile[1][Tile_CornerDownRight] = TileAt(4, 9);
+
+    tile[0][Tile_DoubleCornerUp] = TileAt(10, 7);
+    tile[1][Tile_DoubleCornerUp] = TileAt(10, 1);
+    tile[0][Tile_DoubleCornerDown] = TileAt(10, 4);
+    tile[1][Tile_DoubleCornerDown] = TileAt(10, 2);
+    tile[0][Tile_DoubleCornerLeft] = TileAt(10, 6);
+    tile[1][Tile_DoubleCornerLeft] = TileAt(10, 0);
+    tile[0][Tile_DoubleCornerRight] = TileAt(10, 5);
+    tile[1][Tile_DoubleCornerRight] = TileAt(10, 3);
 
     tile[0][Tile_OuterUpLeft] = TileAt(5, 7);
     tile[1][Tile_OuterUpLeft] = TileAt(5, 9);
@@ -549,6 +568,8 @@ i32 main(void)
             game.framebufferValid = true;
         }
 
+        synchronizer_animation_frame++;
+
         for (u32 i = 0; i < 2; ++i)
         {
             Camera2D *camera = &game.camera[i];
@@ -695,14 +716,17 @@ i32 main(void)
 
             for (i32 j = 0; j < level->goal_count; ++j)
             {
-                Rectangle tile = { level->goals[j].position.x, level->goals[j].position.y, TILE_SIZE, TILE_SIZE };
-                DrawRectangleRec(tile, YELLOW);
+                DrawTextureRec(tileset, goal_rect[i], level->goals[j].position, WHITE);
             }
             
             for (i32 j = 0; j < level->synchronizer_count; ++j)
             {
-                Rectangle tile = { level->synchronizers[j].position.x, level->synchronizers[j].position.y, TILE_SIZE, TILE_SIZE };
-                DrawRectangleRec(tile, GREEN);
+                if((synchronizer_animation_frame/20) % 2 == 0){
+                    DrawTextureRec(tileset, synchronizer_rect[0], level->synchronizers[j].position, WHITE);
+                }else{
+                    DrawTextureRec(tileset, synchronizer_rect[1], level->synchronizers[j].position, WHITE);
+                }
+                
             }
 
             // Render player

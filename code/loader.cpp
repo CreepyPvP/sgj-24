@@ -93,6 +93,25 @@ void PopulateTileRuleLookup()
                                  1,    1,
                                  1, 1, 1)] = Tile_CornerDownRight;
 
+    // Double corners
+    
+
+    tileRuleLookup[NeighbourMask(0, 1, 0,
+                                 1,    1,
+                                 1, 1, 1)] = Tile_DoubleCornerUp;
+
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 1,    1,
+                                 0, 1, 0)] = Tile_DoubleCornerDown;
+    
+    tileRuleLookup[NeighbourMask(1, 1, 0,
+                                 1,    1,
+                                 1, 1, 0)] = Tile_DoubleCornerRight;
+
+    tileRuleLookup[NeighbourMask(0, 1, 1,
+                                 1,    1,
+                                 0, 1, 1)] = Tile_DoubleCornerLeft;
+
     // Outer edges
     
 
@@ -179,7 +198,11 @@ void LoadLevelFromFile(Level *level, char *path)
     i32 channel = 3;
 
     u8 *tmp = stbi_load(path, &width, &height, &channel, STBI_rgb);
-    assert(tmp);
+    if (!tmp)
+    {
+        TraceLog(LOG_FATAL, "Failed to open file %s", path);
+        assert(0);
+    }
 
     level->width = width;
     level->height = height;
