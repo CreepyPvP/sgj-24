@@ -225,7 +225,13 @@ void LoadLevelFromFile(Level *level, char *path)
 
 void LoadGameFromFile(Game *game, u32 stage)
 {
-    game->horizontal_split = true;
+    bool horizontal_split = true;
+    if (game->horizontal_split != horizontal_split)
+    {
+        game->framebufferValid = false;
+    }
+    game->horizontal_split = horizontal_split;
+
     for (u32 i = 0; i < 2; ++i)
     {
         char path[1024];
@@ -236,17 +242,15 @@ void LoadGameFromFile(Game *game, u32 stage)
 
         game->player[i] = {};
         game->player[i].position = game->level[i].spawn;
-
-        game->framebufferValid = false;
     }
 
     for (u32 i = 0; i < STAR_COUNT; i++)
     {
         Star star = {};
-        star.x = Halton(i, 2);
-        star.y = Halton(i, 3);
-        star.size = Halton(i, 5);
-        star.frequency = Halton(i, 7);
+        star.x = Halton(i + 100 * stage, 2);
+        star.y = Halton(i + 100 * stage, 3);
+        star.size = Halton(i + 100 * stage, 5);
+        star.frequency = Halton(i + 100 * stage, 7);
         game->star[i] = star;
     }
 }
