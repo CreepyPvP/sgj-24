@@ -491,7 +491,7 @@ i32 main(void)
             reset_level = true;
         }
 
-        //Check goal
+        // Check goal
         u32 achieved_goals = 0;
         for (u32 i = 0; i < 2; ++i)
         {
@@ -714,7 +714,7 @@ i32 main(void)
                 DrawTextureRec(tileset, spike[i][level->spikes[j].rotation], level->spikes[j].position, WHITE);
             }
 
-            for (i32 j = 0; j < level->goal_count; ++j)
+            for (u32 j = 0; j < level->goal_count; ++j)
             {
                 DrawTextureRec(tileset, goal_rect[i], level->goals[j].position, WHITE);
             }

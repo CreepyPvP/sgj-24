@@ -58,13 +58,13 @@ struct Level
     u32 tiles[2048];
 
     u32 spike_count;
-    Spikes spikes[32];
+    Spikes spikes[64];
 
     u32 goal_count;
-    Goal goals[32];
+    Goal goals[64];
 
     u32 synchronizer_count;
-    Synchronizer synchronizers[50];
+    Synchronizer synchronizers[32];
 
     Vector2 spawn;
 
