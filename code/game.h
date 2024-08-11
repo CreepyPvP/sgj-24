@@ -94,6 +94,8 @@ struct Game
 
     // For red level only
     Vector2 rainPosition[2][RAIN_PARTICLE_COUNT];
+    f32 timeUntilNextFlash;
+    f32 flashIntensity;
 };
 
 enum TileId

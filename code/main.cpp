@@ -25,13 +25,13 @@ Color clearColors[2] = {
 };
 
 Color rainColors[2] = {
-    LIGHTGRAY,
-    WHITE,
+    { 200, 200, 200, 150 },
+    { 255, 255, 255, 150 },
 };
 
 f32 rainVelocity[2] = {
-    64,
     127,
+    250,
 };
 
 struct DebugRay
@@ -324,7 +324,6 @@ void UpdatePlayer(Player *player, Level *level, float delta)
 
     for(u32 i= 0; i < level->spike_count;i++){
         Spikes spike = level->spikes[i];
-        printf("%d\n",spike.rotation);
         Vector2 left_corner, right_corner, peak;
 
         if(spike.rotation == 0){
@@ -379,6 +378,15 @@ void UpdateParticles(Game *game, f32 delta)
             game->rainPosition[i][j] = position;
         }
     }
+
+    game->timeUntilNextFlash -= delta;
+    game->flashIntensity -= delta;
+
+    if (game->timeUntilNextFlash < 0)
+    {
+        game->flashIntensity = 0.3;
+        game->timeUntilNextFlash = NextHalton2() * 6 + 1;
+    }
 }
 
 i32 main(void)
@@ -396,6 +404,7 @@ i32 main(void)
     i32 postprocessSizeLoc = GetShaderLocation(postprocess, "size");
 
     LoadAssets();
+    InitializeSamplers();
     PopulateTileRuleLookup();
 
     current_level = 0;
@@ -509,7 +518,7 @@ i32 main(void)
 
             UpdatePlayer(player, level, delta);
 
-            UpdateParticles(&game, delta);
+            UpdateParticles(&game, 1.0f / 60.0f);
 
             //Synchronizer Update
             for(u32 j = 0; j < level->synchronizer_count; j++){
@@ -570,7 +579,7 @@ i32 main(void)
                 }
             }
 
-            //End Synchronizer Update
+            // End Synchronizer Update
 
             if (level->fixed_camera) {
                 camera->target = level->fixed_camera_pos;
@@ -603,6 +612,13 @@ i32 main(void)
                     {
                         DrawCircleV(game.rainPosition[j][k], 3, rainColors[j]);
                     }
+                }
+
+                if (game.flashIntensity > 0)
+                {
+                    Color flashColor = WHITE;
+                    flashColor.a = (u8) (255 * game.flashIntensity);
+                    DrawRectangleV({}, {game.framebufferSize[0], game.framebufferSize[1]}, flashColor);
                 }
             }
 
