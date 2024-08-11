@@ -12,7 +12,8 @@ typedef uint8_t u8;
 
 #define TILE_SIZE 64.0f
 
-#define STAR_COUNT 32
+#define STAR_COUNT 64
+#define RAIN_PARTICLE_COUNT 64
 
 struct Player {
     Vector2 position;
@@ -77,12 +78,13 @@ struct Star
 
 struct Game
 {
+    Camera2D camera[2];
     Player player[2];
     Level level[2];
 
-    Camera2D camera[2];
-    RenderTexture framebuffer[2];
+    f32 framebufferSize[2];
     bool framebufferValid;
+    RenderTexture framebuffer[2];
 
     bool horizontal_split;
 
@@ -90,6 +92,11 @@ struct Game
 
     // For blue level only
     Star star[STAR_COUNT];
+
+    // For red level only
+    Vector2 rainPosition[2][RAIN_PARTICLE_COUNT];
+    f32 timeUntilNextFlash;
+    f32 flashIntensity;
 };
 
 enum TileId
@@ -108,6 +115,9 @@ enum TileId
     Tile_OuterUpRight,
     Tile_OuterDownLeft,
     Tile_OuterDownRight,
+
+    Tile_PipeHorizontal,
+    Tile_PipeVertical,
 
     Tile_PlatformLeft,
     Tile_PlatformRight,

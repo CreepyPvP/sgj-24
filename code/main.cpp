@@ -21,7 +21,17 @@ bool reset_level;
 
 Color clearColors[2] = { 
     {64, 0, 128, 255}, 
-    PINK 
+    {210, 152, 181, 255}
+};
+
+Color rainColors[2] = {
+    { 200, 200, 200, 150 },
+    { 255, 255, 255, 150 },
+};
+
+f32 rainVelocity[2] = {
+    127,
+    250,
 };
 
 struct DebugRay
@@ -98,6 +108,11 @@ void LoadAssets(){
     tile[1][Tile_OuterDownLeft] = TileAt(9, 4);
     tile[0][Tile_OuterDownRight] = TileAt(4, 2);
     tile[1][Tile_OuterDownRight] = TileAt(4, 0);
+
+    tile[0][Tile_PipeHorizontal] = TileAt(7, 3);
+    tile[1][Tile_PipeHorizontal] = TileAt(7, 1);
+    tile[0][Tile_PipeVertical] = TileAt(3, 2);
+    tile[1][Tile_PipeVertical] = TileAt(1, 2);
 
     tile[0][Tile_PlatformLeft] = TileAt(4, 6);
     tile[1][Tile_PlatformLeft] = TileAt(4, 8);
@@ -332,7 +347,6 @@ void UpdatePlayer(Player *player, Level *level, float delta)
 
     for(u32 i= 0; i < level->spike_count;i++){
         Spikes spike = level->spikes[i];
-        printf("%d\n",spike.rotation);
         Vector2 left_corner, right_corner, peak;
 
         if(spike.rotation == 0){
@@ -369,6 +383,36 @@ void UpdatePlayer(Player *player, Level *level, float delta)
 
 }
 
+void UpdateParticles(Game *game, f32 delta)
+{
+    // Rain...
+    for (u32 i = 0; i < 2; ++i)
+    {
+        for (u32 j = 0; j < RAIN_PARTICLE_COUNT; ++j)
+        {
+            Vector2 position = game->rainPosition[i][j];
+            position.y += rainVelocity[i] * delta;
+            
+            if (position.y > game->framebufferSize[1])
+            {
+                position.x = Halton(i * RAIN_PARTICLE_COUNT + j, 2) * game->framebufferSize[0];
+                position.y = 0;
+            }
+
+            game->rainPosition[i][j] = position;
+        }
+    }
+
+    game->timeUntilNextFlash -= delta;
+    game->flashIntensity -= delta;
+
+    if (game->timeUntilNextFlash < 0)
+    {
+        game->flashIntensity = 0.3;
+        game->timeUntilNextFlash = NextHalton2() * 6 + 1;
+    }
+}
+
 i32 main(void)
 {
     SetTraceLogLevel(LOG_DEBUG);
@@ -386,6 +430,7 @@ i32 main(void)
     i32 postprocessSizeLoc = GetShaderLocation(postprocess, "size");
 
     LoadAssets();
+    InitializeSamplers();
     PopulateTileRuleLookup();
 
     
@@ -399,7 +444,7 @@ i32 main(void)
 
     SetTargetFPS(60);
 
-    f32 framebufferSize[2];
+    f32 time = 0;
 
     while (!WindowShouldClose())
     {
@@ -412,6 +457,8 @@ i32 main(void)
         UpdateMusicStream(victory_music);
 
         f32 delta = GetFrameTime();
+        time += delta;
+
         ray_count = 0;
 
         if (IsKeyPressed(KEY_N))
@@ -470,8 +517,8 @@ i32 main(void)
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 2.0f, height / 4.0f };
 
-                    framebufferSize[0] = width;
-                    framebufferSize[1] = height / 2;
+                    game.framebufferSize[0] = width;
+                    game.framebufferSize[1] = height / 2;
                 }
                 else
                 {
@@ -480,12 +527,24 @@ i32 main(void)
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 4.0f, height / 2.0f };
 
-                    framebufferSize[0] = width / 2;
-                    framebufferSize[1] = height;
+                    game.framebufferSize[0] = width / 2;
+                    game.framebufferSize[1] = height;
                 }
             }
 
-            SetShaderValue(postprocess, postprocessSizeLoc, framebufferSize, SHADER_UNIFORM_VEC2);
+            SetShaderValue(postprocess, postprocessSizeLoc, game.framebufferSize, SHADER_UNIFORM_VEC2);
+
+            // Recalculate rain particle positions
+            for (u32 i = 0; i < 2; ++i)
+            {
+                for (u32 j = 0; j < RAIN_PARTICLE_COUNT; ++j)
+                {
+                    Vector2 position;
+                    position.x = game.framebufferSize[0] * Halton(i * RAIN_PARTICLE_COUNT + j, 2);
+                    position.y = game.framebufferSize[1] * Halton(i * RAIN_PARTICLE_COUNT + j, 3);
+                    game.rainPosition[i][j] = position;
+                }
+            }
 
             game.framebufferValid = true;
         }
@@ -497,6 +556,8 @@ i32 main(void)
             Player *player = &game.player[i];
 
             UpdatePlayer(player, level, delta);
+
+            UpdateParticles(&game, 1.0f / 60.0f);
 
             //Synchronizer Update
             for(u32 j = 0; j < level->synchronizer_count; j++){
@@ -562,7 +623,7 @@ i32 main(void)
                 }
             }
 
-            //End Synchronizer Update
+            // End Synchronizer Update
 
             if (level->fixed_camera) {
                 camera->target = level->fixed_camera_pos;
@@ -574,16 +635,34 @@ i32 main(void)
             ClearBackground(clearColors[i]);
             BeginMode2D(*camera);
 
-            // Render stars...
+            // Render stars and rain...
 
             if (i == 0)
             {
                 for (u32 j = 0; j < STAR_COUNT; ++j)
                 {
                     Star star = game.star[j];
-                    f32 x = star.x * framebufferSize[0];
-                    f32 y = star.y * framebufferSize[1];
-                    DrawCircle(x, y, 1 + star.size * 3, WHITE);
+                    f32 x = star.x * game.framebufferSize[0];
+                    f32 y = star.y * game.framebufferSize[1];
+                    f32 intensity = Min(Max(sin(time * star.frequency) + 0.1, 0), 1);
+                    DrawCircle(x, y, 1 + star.size * 3, {255, 255, 255, (u8) (intensity * 255)});
+                }
+            }
+            else
+            {
+                for (u32 j = 0; j < 2; ++j)
+                {
+                    for (u32 k = 0; k < RAIN_PARTICLE_COUNT; ++k)
+                    {
+                        DrawCircleV(game.rainPosition[j][k], 3, rainColors[j]);
+                    }
+                }
+
+                if (game.flashIntensity > 0)
+                {
+                    Color flashColor = WHITE;
+                    flashColor.a = (u8) (255 * game.flashIntensity);
+                    DrawRectangleV({}, {game.framebufferSize[0], game.framebufferSize[1]}, flashColor);
                 }
             }
 
@@ -684,7 +763,7 @@ i32 main(void)
 
         ClearBackground(BLACK);
 
-        Rectangle textureRect = {0.0f, 0.0f, (i32) framebufferSize[0], (i32) -framebufferSize[1]};
+        Rectangle textureRect = {0.0f, 0.0f, (i32) game.framebufferSize[0], (i32) -game.framebufferSize[1]};
         if (game.horizontal_split)
         {
             BeginShaderMode(postprocess);
