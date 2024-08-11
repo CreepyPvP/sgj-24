@@ -52,10 +52,13 @@ struct Level
     u32 tiles[2048];
 
     u32 spike_count;
-    Spikes spikes[50];
+    Spikes spikes[32];
 
     u32 goal_count;
-    Goal goals[50];
+    Goal goals[32];
+
+    u32 puddle_count;
+    Vector2 puddles[32];
 
     u32 synchronizer_count;
     Synchronizer synchronizers[50];

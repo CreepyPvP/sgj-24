@@ -51,6 +51,7 @@ DebugRay *AllocRay()
 
 Rectangle spike[2][4];
 Rectangle tile[2][Tile_Walls];
+Rectangle puddle[2];
 Texture2D tileset;
 
 Texture2D player_sprite_texture;
@@ -63,6 +64,9 @@ inline Rectangle TileAt(u32 x, u32 y)
 
 void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
+
+    puddle[0] = { 0, 400, 16, 16 };
+    puddle[1] = { 0, 416, 16, 16 };
 
     spike[0][0] = TileAt(3, 6);
     spike[1][0] = TileAt(3, 8);
@@ -331,19 +335,19 @@ void UpdatePlayer(Player *player, Level *level, float delta)
         Spikes spike = level->spikes[i];
         Vector2 left_corner, right_corner, peak;
 
-        if(spike.rotation == 0){
+        if (spike.rotation == 0){
             left_corner = {spike.position.x, spike.position.y + TILE_SIZE };
             right_corner = {spike.position.x + TILE_SIZE, spike.position.y + TILE_SIZE };
             peak = {spike.position.x + TILE_SIZE/2 , spike.position.y };
-        }else if(spike.rotation == 1){
+        } else if(spike.rotation == 1){
             left_corner = {spike.position.x, spike.position.y };
             right_corner = {spike.position.x, spike.position.y + TILE_SIZE };
             peak = {spike.position.x + TILE_SIZE , spike.position.y + TILE_SIZE/2};
-        }else if(spike.rotation == 2){
+        } else if(spike.rotation == 2){
             left_corner = {spike.position.x + TILE_SIZE, spike.position.y };
             right_corner = {spike.position.x, spike.position.y };
             peak = {spike.position.x + TILE_SIZE/2 , spike.position.y + TILE_SIZE};
-        }else{
+        } else{
             left_corner = {spike.position.x + TILE_SIZE, spike.position.y + TILE_SIZE };
             right_corner = {spike.position.x + TILE_SIZE, spike.position.y };
             peak = {spike.position.x , spike.position.y + TILE_SIZE/2};
@@ -627,23 +631,6 @@ i32 main(void)
                 }
             }
 
-            for (i32 j = 0; j < level->spike_count; ++j)
-            {
-                DrawTextureRec(tileset, spike[i][level->spikes[j].rotation], level->spikes[j].position, WHITE);
-            }
-
-            for (i32 j = 0; j < level->goal_count; ++j)
-            {
-                Rectangle tile = { level->goals[j].position.x, level->goals[j].position.y, TILE_SIZE, TILE_SIZE };
-                DrawRectangleRec(tile, YELLOW);
-            }
-            
-            for (i32 j = 0; j < level->synchronizer_count; ++j)
-            {
-                Rectangle tile = { level->synchronizers[j].position.x, level->synchronizers[j].position.y, TILE_SIZE, TILE_SIZE };
-                DrawRectangleRec(tile, GREEN);
-            }
-
             // Render Tiles
 
             i32 padding = 5;
@@ -664,6 +651,30 @@ i32 main(void)
                         DrawTextureRec(tileset, tile[i][type], {x * TILE_SIZE, y * TILE_SIZE}, WHITE);
                     }
                 }
+            }
+
+            // Render puddles
+            
+            for (u32 j = 0; j < level->puddle_count; ++j)
+            {
+                DrawTextureRec(tileset, puddle[0], {x * TILE_SIZE, y * TILE_SIZE}, WHITE);
+            }
+
+            for (i32 j = 0; j < level->spike_count; ++j)
+            {
+                DrawTextureRec(tileset, spike[i][level->spikes[j].rotation], level->spikes[j].position, WHITE);
+            }
+
+            for (i32 j = 0; j < level->goal_count; ++j)
+            {
+                Rectangle tile = { level->goals[j].position.x, level->goals[j].position.y, TILE_SIZE, TILE_SIZE };
+                DrawRectangleRec(tile, YELLOW);
+            }
+            
+            for (i32 j = 0; j < level->synchronizer_count; ++j)
+            {
+                Rectangle tile = { level->synchronizers[j].position.x, level->synchronizers[j].position.y, TILE_SIZE, TILE_SIZE };
+                DrawRectangleRec(tile, GREEN);
             }
 
             // Render player

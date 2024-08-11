@@ -221,6 +221,12 @@ void LoadLevelFromFile(Level *level, char *path)
                     wallMask[x + y * level->width] = 1;
                 }
             } 
+            else if (curr[0] == 100 && curr[1] == 100 && curr[2] == 100)
+            {
+                level->puddles[level->puddle_count++] = { x * TILE_SIZE, y * TILE_SIZE };
+                wallMask[x + y * level->width] = 1;
+            }
+
             curr += 3;
         }
     }
