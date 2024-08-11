@@ -102,6 +102,10 @@ struct Game
     Vector2 rainPosition[2][RAIN_PARTICLE_COUNT];
     f32 timeUntilNextFlash;
     f32 flashIntensity;
+
+    // Death animation
+    bool playerAlive;
+    u32 framesSinceDeath;
 };
 
 enum TileId

@@ -241,7 +241,7 @@ f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
     return 100 * TILE_SIZE;
 }
 
-void UpdatePlayer(Player *player, Level *level, float delta)
+void UpdatePlayer(Player *player, Level *level, Game *game, float delta)
 {
 
     player->vx = 0;
@@ -394,12 +394,13 @@ void UpdatePlayer(Player *player, Level *level, float delta)
            aabb_contains_point(player_pos, player_size, right_corner) ||
            aabb_contains_point(player_pos, player_size, peak))
         {
-            reset_level = true;
+            game->playerAlive = false;
+            game->framesSinceDeath = 0;
+
+            // reset_level = true;
             PlayMusicStream(death_music);
         }
     }
-
-
 }
 
 void UpdateParticles(Game *game, f32 delta)
@@ -576,80 +577,101 @@ i32 main(void)
             Level *level = &game.level[i];
             Player *player = &game.player[i];
 
-            UpdatePlayer(player, level, delta);
+            if (game.playerAlive)
+            {
+                UpdatePlayer(player, level, &game, delta);
+            }
+            else
+            {
+                game.framesSinceDeath++;
 
-            UpdateParticles(&game, 1.0f / 60.0f);
-
-            //Synchronizer Update
-            for(u32 j = 0; j < level->synchronizer_count; j++){
-                if(aabb_intersects_aabb(level->synchronizers[j].position, {TILE_SIZE, TILE_SIZE} ,
-                                    {player->position.x - (TILE_SIZE/2.0f) , player->position.y}, 
-                                    {TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE}))
+                if (game.framesSinceDeath > 30)
                 {
-                    bool can_teleport = true;
-
-                    // u32 int_x_pos = (int)((player->position.x - TILE_SIZE/2)/ TILE_SIZE);
-                    // u32 int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT )  / TILE_SIZE);
-                    // if(0<= int_x_pos && int_x_pos < level->width && 
-                    //    0 <= int_y_pos && int_y_pos < level->height){
-                    //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
-                    //     if(tile < Tile_Walls){
-                    //         reset_level = true;
-                    //     }
-                    // }
-                    // int_x_pos = (int)((player->position.x + TILE_SIZE/2)/ TILE_SIZE);
-                    // int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT )  / TILE_SIZE);
-                    // if(0<= int_x_pos && int_x_pos < level->width && 
-                    //    0 <= int_y_pos && int_y_pos < level->height){
-                    //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
-                    //     if(tile < Tile_Walls){
-                    //         reset_level = true;
-                    //     }
-                    // }
-                    // int_x_pos = (int)((player->position.x - TILE_SIZE/2)/ TILE_SIZE);
-                    // int_y_pos = (int)((player->position.y)  / TILE_SIZE);
-                    // if(0<= int_x_pos && int_x_pos < level->width && 
-                    //    0 <= int_y_pos && int_y_pos < level->height){
-                    //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
-                    //     if(tile < Tile_Walls){
-                    //         reset_level = true;
-                    //     }
-                    // }
-                    // int_x_pos = (int)((player->position.x + TILE_SIZE/2)/ TILE_SIZE);
-                    // int_y_pos = (int)((player->position.y)  / TILE_SIZE);
-                    // if(0<= int_x_pos && int_x_pos < level->width && 
-                    //    0 <= int_y_pos && int_y_pos < level->height){
-                    //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
-                    //     if(tile < Tile_Walls) {
-                    //         reset_level = true;
-                    //     }
-                    // }
-
-                    if(can_teleport){
-                        player->position.x = game.player[1-i].position.x;
-                        player->position.y = game.player[1-i].position.y;
-                        player->vx = game.player[1-i].vx;
-                        player->vy = game.player[1-i].vy;
-                        player->canJump = game.player[1-i].canJump;
-                        player->state = game.player[1-i].state;
-                        player->animation_frame = game.player[1-i].animation_frame;
-                        if(!level->synchronizers[j].playing_music &&
-                           !IsMusicStreamPlaying(synchronizer_music)){
-                            PlayMusicStream(synchronizer_music);
-                            level->synchronizers[j].playing_music = true;
-                        }
-                    }
-                }else{
-                    level->synchronizers[j].playing_music = false;
+                    reset_level = true;
                 }
             }
 
-            // End Synchronizer Update
+            UpdateParticles(&game, 1.0f / 60.0f);
 
-            if (level->fixed_camera) {
+            if (game.playerAlive) 
+            {
+
+                //Synchronizer Update
+                for(u32 j = 0; j < level->synchronizer_count; j++){
+                    if(aabb_intersects_aabb(level->synchronizers[j].position, {TILE_SIZE, TILE_SIZE} ,
+                                            {player->position.x - (TILE_SIZE/2.0f) , player->position.y}, 
+                                            {TILE_SIZE, PLAYER_HEIGHT * TILE_SIZE}))
+                    {
+                        bool can_teleport = true;
+
+                        // u32 int_x_pos = (int)((player->position.x - TILE_SIZE/2)/ TILE_SIZE);
+                        // u32 int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT )  / TILE_SIZE);
+                        // if(0<= int_x_pos && int_x_pos < level->width && 
+                        //    0 <= int_y_pos && int_y_pos < level->height){
+                        //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        //     if(tile < Tile_Walls){
+                        //         reset_level = true;
+                        //     }
+                        // }
+                        // int_x_pos = (int)((player->position.x + TILE_SIZE/2)/ TILE_SIZE);
+                        // int_y_pos = (int)((player->position.y - TILE_SIZE * PLAYER_HEIGHT )  / TILE_SIZE);
+                        // if(0<= int_x_pos && int_x_pos < level->width && 
+                        //    0 <= int_y_pos && int_y_pos < level->height){
+                        //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        //     if(tile < Tile_Walls){
+                        //         reset_level = true;
+                        //     }
+                        // }
+                        // int_x_pos = (int)((player->position.x - TILE_SIZE/2)/ TILE_SIZE);
+                        // int_y_pos = (int)((player->position.y)  / TILE_SIZE);
+                        // if(0<= int_x_pos && int_x_pos < level->width && 
+                        //    0 <= int_y_pos && int_y_pos < level->height){
+                        //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        //     if(tile < Tile_Walls){
+                        //         reset_level = true;
+                        //     }
+                        // }
+                        // int_x_pos = (int)((player->position.x + TILE_SIZE/2)/ TILE_SIZE);
+                        // int_y_pos = (int)((player->position.y)  / TILE_SIZE);
+                        // if(0<= int_x_pos && int_x_pos < level->width && 
+                        //    0 <= int_y_pos && int_y_pos < level->height){
+                        //     u32 tile = level->tiles[int_x_pos + int_y_pos * level->width];
+                        //     if(tile < Tile_Walls) {
+                        //         reset_level = true;
+                        //     }
+                        // }
+
+                        if(can_teleport){
+                            player->position.x = game.player[1-i].position.x;
+                            player->position.y = game.player[1-i].position.y;
+                            player->vx = game.player[1-i].vx;
+                            player->vy = game.player[1-i].vy;
+                            player->canJump = game.player[1-i].canJump;
+                            player->state = game.player[1-i].state;
+                            player->animation_frame = game.player[1-i].animation_frame;
+                            if(!level->synchronizers[j].playing_music &&
+                                !IsMusicStreamPlaying(synchronizer_music)){
+                                PlayMusicStream(synchronizer_music);
+                                level->synchronizers[j].playing_music = true;
+                            }
+                        }
+                    }else{
+                        level->synchronizers[j].playing_music = false;
+                    }
+                }
+
+                // End Synchronizer Update
+
+                if (level->fixed_camera) {
+                    camera->target = level->fixed_camera_pos;
+                } else {
+                    camera->target = Vector2Lerp(player->position, game.player[0].position, 0);
+                }
+
+            }
+            else
+            {
                 camera->target = level->fixed_camera_pos;
-            } else {
-                camera->target = Vector2Lerp(player->position, game.player[0].position, 0);
             }
 
             BeginTextureMode(game.framebuffer[i]);
@@ -767,16 +789,7 @@ i32 main(void)
                     }
                     DrawTextureRec(player_sprite_texture, player_frame_rec, player_render_position, WHITE); break;
             }
-
             // End Render Player
-
-#if 0
-            for (u32 i = 0; i < ray_count; ++i) 
-            {
-                DebugRay ray = rays[i];
-                DrawLineV(ray.start, ray.end, ray.color);
-            }
-#endif
 
             EndMode2D();
             EndTextureMode();
