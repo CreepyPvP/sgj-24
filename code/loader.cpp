@@ -4,6 +4,7 @@
 
 #include "loader.h"
 
+#include "game_math.h"
 #include "game.h"
 #include "stb_image.h"
 
@@ -218,6 +219,16 @@ void LoadGameFromFile(Game *game, u32 stage)
         game->player[i].position = game->level[i].spawn;
 
         game->framebufferValid = false;
+    }
+
+    for (u32 i = 0; i < STAR_COUNT; i++)
+    {
+        Star star = {};
+        star.x = Halton(i, 2);
+        star.y = Halton(i, 3);
+        star.size = Halton(i, 5);
+        star.frequency = Halton(i, 7);
+        game->star[i] = star;
     }
 }
 

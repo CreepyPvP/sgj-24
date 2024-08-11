@@ -42,8 +42,18 @@ inline f32 Max(f32 a, f32 b, f32 c)
     return Max(a, Max(b, c));
 }
 
+inline f32 Halton(u32 i, u32 b)
+{
+    f32 f = 1;
+    f32 r = 0;
+    while (i > 0) {
+        f = f / b;
+        r += f * (i % b);
+        i = floor(i / b);
+    }
 
-
+    return r;
+}
 
 inline bool aabb_contains_point(Vector2 aabb_pos, Vector2 aabb_size, Vector2 point)
 {

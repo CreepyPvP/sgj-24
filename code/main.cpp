@@ -17,6 +17,10 @@ u32 current_level;
 
 bool reset_level;
 
+Color clearColors[2] = { 
+    {64, 0, 128, 255}, 
+    PINK 
+};
 
 struct DebugRay
 {
@@ -328,6 +332,7 @@ i32 main(void)
     i32 height = 920;
 
     // SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "Synchronize");
 
     LoadAssets();
@@ -342,6 +347,9 @@ i32 main(void)
     SetTargetFPS(60);
 
     // Texture2D texture = LoadTexture("assets/tiles.png");
+
+    i32 framebuffer_width = 0;
+    i32 framebuffer_height = 0;
 
     while (!WindowShouldClose())
     {
@@ -401,6 +409,9 @@ i32 main(void)
                     game.camera[i] = {};
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 2.0f, height / 4.0f };
+
+                    framebuffer_width = width;
+                    framebuffer_height = height / 2;
                 }
                 else
                 {
@@ -408,6 +419,9 @@ i32 main(void)
                     game.camera[i] = {};
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 4.0f, height / 2.0f };
+
+                    framebuffer_width = width / 2;
+                    framebuffer_height = height;
                 }
             }
 
@@ -486,15 +500,28 @@ i32 main(void)
 
             //End Synchronizer Update
 
-            if(level->fixed_camera){
+            if (level->fixed_camera) {
                 camera->target = level->fixed_camera_pos;
-            }else{
+            } else {
                 camera->target = Vector2Lerp(player->position, game.player[0].position, 0);
             }
 
             BeginTextureMode(game.framebuffer[i]);
-            ClearBackground(i == 0? RAYWHITE : SKYBLUE);
+            ClearBackground(clearColors[i]);
             BeginMode2D(*camera);
+
+            // Render stars...
+
+            if (i == 0)
+            {
+                for (u32 j = 0; j < STAR_COUNT; ++j)
+                {
+                    Star star = game.star[j];
+                    f32 x = star.x * framebuffer_width;
+                    f32 y = star.y * framebuffer_height;
+                    DrawCircle(x, y, 1 + star.size * 3, WHITE);
+                }
+            }
 
             for (i32 j = 0; j < level->spike_count; ++j)
             {
@@ -593,7 +620,7 @@ i32 main(void)
 
         ClearBackground(BLACK);
 
-        Rectangle textureRect = {0.0f, 0.0f, game.framebuffer[0].texture.width, -game.framebuffer[1].texture.height};
+        Rectangle textureRect = {0.0f, 0.0f, framebuffer_width, -framebuffer_height};
         if (game.horizontal_split)
         {
             DrawTextureRec(game.framebuffer[0].texture, textureRect, { 0, 0 }, WHITE);

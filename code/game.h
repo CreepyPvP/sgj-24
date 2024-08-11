@@ -12,6 +12,8 @@ typedef uint8_t u8;
 
 #define TILE_SIZE 64.0f
 
+#define STAR_COUNT 32
+
 struct Player {
     Vector2 position;
     bool canJump;
@@ -63,6 +65,15 @@ struct Level
     Vector2 fixed_camera_pos;
 };
 
+struct Star
+{
+    // In range 0..1
+    f32 x;
+    f32 y;
+    f32 size;
+    f32 frequency;
+};
+
 struct Game
 {
     Player player[2];
@@ -73,6 +84,11 @@ struct Game
     bool framebufferValid;
 
     bool horizontal_split;
+
+    // Fancy stuff...
+
+    // For blue level only
+    Star star[STAR_COUNT];
 };
 
 enum TileId
