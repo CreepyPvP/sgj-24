@@ -164,6 +164,7 @@ void LoadAssets(){
     death_music.looping = false;
     victory_music = LoadMusicStream("assets/music/Goal.wav");
     victory_music.looping = false;
+    SetMusicVolume(victory_music,1.5f);
     synchronizer_music = LoadMusicStream("assets/music/Synchronize.wav");
     synchronizer_music.looping = false;
 
