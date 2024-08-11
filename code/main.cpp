@@ -11,9 +11,9 @@
 #define PLAYER_HOR_SPD 450.0f
 #define PLAYER_HEIGHT 1.65f
 
-#define TOTAL_LEVEL_COUNT 12
+#define TOTAL_LEVEL_COUNT 13
 
-u32 level_order[TOTAL_LEVEL_COUNT] = {0,1,6,7,3,4,5,2,11,10,8,9};
+u32 level_order[TOTAL_LEVEL_COUNT] = {0,1,6,7,3,4,12,5,11,2,10,8,9};
 
 u32 current_level;
 
