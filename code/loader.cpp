@@ -112,6 +112,33 @@ void PopulateTileRuleLookup()
                                  1,    0,
                                  0, 0, 0)] = Tile_OuterDownRight;
 
+    // Pipes
+    
+
+    tileRuleLookup[NeighbourMask(0, 0, 0,
+                                 1,    1,
+                                 0, 0, 0)] = Tile_PipeHorizontal;
+
+    tileRuleLookup[NeighbourMask(1, 0, 0,
+                                 1,    1,
+                                 1, 0, 0)] = Tile_PipeHorizontal;
+
+    tileRuleLookup[NeighbourMask(0, 0, 1,
+                                 1,    1,
+                                 0, 0, 1)] = Tile_PipeHorizontal;
+
+    tileRuleLookup[NeighbourMask(0, 1, 0,
+                                 0,    0,
+                                 0, 1, 0)] = Tile_PipeVertical;
+    
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 0,    0,
+                                 0, 1, 0)] = Tile_PipeVertical;
+
+    tileRuleLookup[NeighbourMask(0, 1, 0,
+                                 0,    0,
+                                 1, 1, 1)] = Tile_PipeVertical;
+
     // Platforms
 
 

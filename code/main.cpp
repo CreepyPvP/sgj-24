@@ -102,6 +102,11 @@ void LoadAssets(){
     tile[0][Tile_OuterDownRight] = TileAt(4, 2);
     tile[1][Tile_OuterDownRight] = TileAt(4, 0);
 
+    tile[0][Tile_PipeHorizontal] = TileAt(7, 3);
+    tile[1][Tile_PipeHorizontal] = TileAt(7, 1);
+    tile[0][Tile_PipeVertical] = TileAt(3, 2);
+    tile[1][Tile_PipeVertical] = TileAt(1, 2);
+
     tile[0][Tile_PlatformLeft] = TileAt(4, 6);
     tile[1][Tile_PlatformLeft] = TileAt(4, 8);
     tile[0][Tile_PlatformRight] = TileAt(5, 6);

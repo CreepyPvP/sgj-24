@@ -115,6 +115,9 @@ enum TileId
     Tile_OuterDownLeft,
     Tile_OuterDownRight,
 
+    Tile_PipeHorizontal,
+    Tile_PipeVertical,
+
     Tile_PlatformLeft,
     Tile_PlatformRight,
 
