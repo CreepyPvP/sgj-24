@@ -53,14 +53,13 @@ void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
 
     spike[0][0] = TileAt(3, 6);
-    spike[0][1] = TileAt(9, 7);
-    spike[0][2] = TileAt(6, 3);
-    spike[0][3] = TileAt(0, 2);
-
     spike[1][0] = TileAt(3, 8);
-    spike[1][1] = TileAt(7, 7);
+    spike[0][1] = TileAt(3, 3);
+    spike[1][1] = TileAt(1, 3);
+    spike[0][2] = TileAt(6, 3);
     spike[1][2] = TileAt(6, 1);
-    spike[1][3] = TileAt(2, 2);
+    spike[0][3] = TileAt(6, 6);
+    spike[1][3] = TileAt(8, 6);
     
     // Blue: 0, Pink: 1
     // Fuck...
@@ -68,17 +67,17 @@ void LoadAssets(){
     tile[1][Tile_WallUp] = TileAt(1, 8);
     tile[0][Tile_WallDown] = TileAt(8, 3);
     tile[1][Tile_WallDown] = TileAt(8, 1);
-    tile[0][Tile_WallLeft] = TileAt(0, 4);
-    tile[1][Tile_WallLeft] = TileAt(2, 4);
-    tile[0][Tile_WallRight] = TileAt(9, 5);
-    tile[1][Tile_WallRight] = TileAt(7, 5);
+    tile[0][Tile_WallLeft] = TileAt(6, 8);
+    tile[1][Tile_WallLeft] = TileAt(8, 8);
+    tile[0][Tile_WallRight] = TileAt(3, 1);
+    tile[1][Tile_WallRight] = TileAt(1, 1);
 
     tile[0][Tile_CornerUpLeft] = TileAt(5, 2);
     tile[1][Tile_CornerUpLeft] = TileAt(5, 0);
-    tile[0][Tile_CornerUpRight] = TileAt(1, 1);
-    tile[1][Tile_CornerUpRight] = TileAt(3, 1);
-    tile[0][Tile_CornerDownLeft] = TileAt(8, 8);
-    tile[1][Tile_CornerDownLeft] = TileAt(6, 8);
+    tile[0][Tile_CornerUpRight] = TileAt(7, 5);
+    tile[1][Tile_CornerUpRight] = TileAt(9, 5);
+    tile[0][Tile_CornerDownLeft] = TileAt(2, 4);
+    tile[1][Tile_CornerDownLeft] = TileAt(0, 4);
     tile[0][Tile_CornerDownRight] = TileAt(4, 7);
     tile[1][Tile_CornerDownRight] = TileAt(4, 9);
 
@@ -96,8 +95,8 @@ void LoadAssets(){
     tile[0][Tile_PlatformRight] = TileAt(5, 6);
     tile[1][Tile_PlatformRight] = TileAt(4, 8);
 
-    tile[0][Tile_WallFull] = TileAt(1, 2);
-    tile[1][Tile_WallFull] = TileAt(3, 2);
+    tile[0][Tile_WallFull] = TileAt(2, 3);
+    tile[1][Tile_WallFull] = TileAt(0, 3);
 
     Image player_sprite_image = LoadImage("assets/player/SpriteSheet.png");
     ImageResize(&player_sprite_image,384,448);
