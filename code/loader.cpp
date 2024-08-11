@@ -320,5 +320,8 @@ void LoadGameFromFile(Game *game, u32 stage)
         star.frequency = Halton(i + 100 * stage, 7);
         game->star[i] = star;
     }
+
+    game->playerAlive = true;
+    // game->deathParticleCount = 0;
 }
 
