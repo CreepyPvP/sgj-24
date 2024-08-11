@@ -52,7 +52,7 @@ DebugRay *AllocRay()
 Rectangle spike[2][4];
 Rectangle tile[2][Tile_Walls];
 Texture2D tileset;
-Rectangle goal_rect[2];
+Rectangle goal_rect[2][2];
 Rectangle synchronizer_rect[2];
 u32 synchronizer_animation_frame;
 
@@ -74,8 +74,17 @@ inline Rectangle TileAt(u32 x, u32 y)
 void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
 
-    goal_rect[0] = TileAt(2,7);
-    goal_rect[1] = TileAt(2,9);
+   
+    goal_rect[0][0] = TileAt(11,4);
+    goal_rect[0][1] = TileAt(11,6); 
+    goal_rect[1][0] = TileAt(11,0);
+    goal_rect[1][1] = TileAt(11,2); 
+    
+    for(u32 i=0;i<2;i++){
+        for(u32 j=0;j<2;j++){
+            goal_rect[i][j].height = 2* TILE_SIZE;
+        }
+    }
 
     synchronizer_rect[0] = TileAt(0,9);
     synchronizer_rect[1] = TileAt(1,9);
@@ -155,6 +164,7 @@ void LoadAssets(){
     death_music.looping = false;
     victory_music = LoadMusicStream("assets/music/Goal.wav");
     victory_music.looping = false;
+    SetMusicVolume(victory_music,1.5f);
     synchronizer_music = LoadMusicStream("assets/music/Synchronize.wav");
     synchronizer_music.looping = false;
 
@@ -738,7 +748,11 @@ i32 main(void)
 
             for (u32 j = 0; j < level->goal_count; ++j)
             {
-                DrawTextureRec(tileset, goal_rect[i], level->goals[j].position, WHITE);
+                if((synchronizer_animation_frame/12) % 2 == 0){
+                    DrawTextureRec(tileset, goal_rect[i][0], {level->goals[j].position.x, level->goals[j].position.y - TILE_SIZE}, WHITE);
+                }else{
+                    DrawTextureRec(tileset, goal_rect[i][1], {level->goals[j].position.x, level->goals[j].position.y - TILE_SIZE}, WHITE);
+                }
             }
             
             for (i32 j = 0; j < level->synchronizer_count; ++j)
