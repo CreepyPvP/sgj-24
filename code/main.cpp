@@ -11,9 +11,9 @@
 #define PLAYER_HOR_SPD 450.0f
 #define PLAYER_HEIGHT 1.65f
 
-#define TOTAL_LEVEL_COUNT 12
+#define TOTAL_LEVEL_COUNT 13
 
-u32 level_order[TOTAL_LEVEL_COUNT] = {0,1,6,7,3,4,12,5,11,2,8,9};
+u32 level_order[TOTAL_LEVEL_COUNT] = {0,1,6,7,3,4,12,5,11,2,8,9,13};
 
 u32 current_level;
 
@@ -56,6 +56,13 @@ Texture2D tileset;
 
 Texture2D player_sprite_texture;
 Rectangle player_frame_rec;
+
+
+Music background_music;
+Music death_music;
+Music victory_music;
+Music synchronizer_music;
+
 
 inline Rectangle TileAt(u32 x, u32 y)
 {
@@ -125,6 +132,17 @@ void LoadAssets(){
     UnloadImage(player_sprite_image);
 
     player_frame_rec = {0.0f, 0.0f, (float) player_sprite_texture.width / 6, (float) player_sprite_texture.height / 4 };
+
+    background_music = LoadMusicStream("assets/music/BackgroundMusic.wav");
+    background_music.looping = true;
+    SetMusicVolume(background_music,0.5f);
+    death_music = LoadMusicStream("assets/music/GameOver.wav");
+    death_music.looping = false;
+    victory_music = LoadMusicStream("assets/music/Goal.wav");
+    victory_music.looping = false;
+    synchronizer_music = LoadMusicStream("assets/music/Synchronize.wav");
+    synchronizer_music.looping = false;
+
 }
 
 enum Direction
@@ -362,6 +380,7 @@ void UpdatePlayer(Player *player, Level *level, float delta)
            aabb_contains_point(player_pos, player_size, peak))
         {
             reset_level = true;
+            PlayMusicStream(death_music);
         }
     }
 
@@ -409,12 +428,17 @@ i32 main(void)
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "Synchronize");
 
+    InitAudioDevice();
+
     Shader postprocess = LoadShader(0, "shader/postprocess.glsl");
     i32 postprocessSizeLoc = GetShaderLocation(postprocess, "size");
 
     LoadAssets();
     InitializeSamplers();
     PopulateTileRuleLookup();
+
+    
+    PlayMusicStream(background_music);
 
     current_level = 0;
     reset_level = false;
@@ -428,6 +452,14 @@ i32 main(void)
 
     while (!WindowShouldClose())
     {
+        if(!IsMusicStreamPlaying(victory_music) && ! IsMusicStreamPlaying(death_music)){
+            ResumeMusicStream(background_music);  
+            UpdateMusicStream(background_music); 
+        }
+        UpdateMusicStream(death_music);
+        UpdateMusicStream(synchronizer_music);
+        UpdateMusicStream(victory_music);
+
         f32 delta = GetFrameTime();
         time += delta;
 
@@ -463,6 +495,8 @@ i32 main(void)
         if (achieved_goals == 2 && !reset_level)
         {
             current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
+            PlayMusicStream(victory_music);
+            PauseMusicStream(background_music);
             reset_level = true;
         }
 
@@ -582,9 +616,14 @@ i32 main(void)
                         player->canJump = game.player[1-i].canJump;
                         player->state = game.player[1-i].state;
                         player->animation_frame = game.player[1-i].animation_frame;
+                        if(!level->synchronizers[j].playing_music &&
+                           !IsMusicStreamPlaying(synchronizer_music)){
+                            PlayMusicStream(synchronizer_music);
+                            level->synchronizers[j].playing_music = true;
+                        }
                     }
-                    
-
+                }else{
+                    level->synchronizers[j].playing_music = false;
                 }
             }
 

@@ -207,6 +207,7 @@ void LoadLevelFromFile(Level *level, char *path)
             else if(curr[0] == 0 && curr[1] == 255 && curr[2] == 255) {
                 level->synchronizers[level->synchronizer_count].position.x = x * TILE_SIZE;
                 level->synchronizers[level->synchronizer_count].position.y = y * TILE_SIZE;
+                level->synchronizers[level->synchronizer_count].playing_music = false;
                 level->synchronizer_count++;
             } 
             else if(curr[0] == 0 && curr[1] == 0 && curr[2] == 255) {
