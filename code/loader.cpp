@@ -186,10 +186,13 @@ void LoadLevelFromFile(Level *level, char *path)
                 level->spawn.x = x * TILE_SIZE + (TILE_SIZE/2);
                 level->spawn.y = y * TILE_SIZE - (TILE_SIZE * 0.75f);
             } 
-            else if(curr[0] == 255 && curr[1] == 0 && curr[2] == 255) {
+            else if(curr[0] == 255 && curr[1] <= 1 && curr[2] == 255) {
                 level->fixed_camera = true;
                 level->fixed_camera_pos.x = x * TILE_SIZE;
                 level->fixed_camera_pos.y = y * TILE_SIZE;
+                if(curr[1] == 1){
+                    wallMask[x + y * level->width] = 1;
+                }
             } 
             curr += 3;
         }
