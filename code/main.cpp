@@ -491,6 +491,7 @@ i32 main(void)
 
         ray_count = 0;
 
+#ifdef DEBUG
         if (IsKeyPressed(KEY_N))
         {
             current_level = (current_level + 1) % TOTAL_LEVEL_COUNT;
@@ -500,6 +501,12 @@ i32 main(void)
         if (IsKeyPressed(KEY_R))
         {   
             reset_level = true;
+        }
+#endif
+
+        if (IsKeyPressed(KEY_B))
+        {
+            ToggleFullscreen();
         }
 
         // Check goal
