@@ -63,6 +63,10 @@ void PopulateTileRuleLookup()
                                  0,    1,
                                  1, 1, 1)] = Tile_WallLeft;
 
+    tileRuleLookup[NeighbourMask(1, 1, 1,
+                                 0,    1,
+                                 1, 1, 1)] = Tile_WallLeft;
+
     tileRuleLookup[NeighbourMask(1, 1, 0,
                                  1,    0,
                                  1, 1, 0)] = Tile_WallRight;
@@ -72,6 +76,10 @@ void PopulateTileRuleLookup()
                                  1, 1, 0)] = Tile_WallRight;
     
     tileRuleLookup[NeighbourMask(1, 1, 0,
+                                 1,    0,
+                                 1, 1, 1)] = Tile_WallRight;
+                                 
+    tileRuleLookup[NeighbourMask(1, 1, 1,
                                  1,    0,
                                  1, 1, 1)] = Tile_WallRight;
 
