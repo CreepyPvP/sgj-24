@@ -58,9 +58,6 @@ struct Level
     u32 goal_count;
     Goal goals[32];
 
-    u32 puddle_count;
-    Vector2 puddles[32];
-
     u32 synchronizer_count;
     Synchronizer synchronizers[50];
 

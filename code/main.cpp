@@ -51,7 +51,6 @@ DebugRay *AllocRay()
 
 Rectangle spike[2][4];
 Rectangle tile[2][Tile_Walls];
-Rectangle puddle[2];
 Texture2D tileset;
 
 Texture2D player_sprite_texture;
@@ -71,9 +70,6 @@ inline Rectangle TileAt(u32 x, u32 y)
 
 void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
-
-    puddle[0] = { 0, 400, 16, 16 };
-    puddle[1] = { 0, 416, 16, 16 };
 
     spike[0][0] = TileAt(3, 6);
     spike[1][0] = TileAt(3, 8);
@@ -690,13 +686,6 @@ i32 main(void)
                         DrawTextureRec(tileset, tile[i][type], {x * TILE_SIZE, y * TILE_SIZE}, WHITE);
                     }
                 }
-            }
-
-            // Render puddles
-            
-            for (u32 j = 0; j < level->puddle_count; ++j)
-            {
-                DrawTextureRec(tileset, puddle[0], {x * TILE_SIZE, y * TILE_SIZE}, WHITE);
             }
 
             for (i32 j = 0; j < level->spike_count; ++j)
