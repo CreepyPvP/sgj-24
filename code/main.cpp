@@ -53,14 +53,13 @@ void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
 
     spike[0][0] = TileAt(3, 6);
-    spike[0][1] = TileAt(9, 7);
-    spike[0][2] = TileAt(6, 3);
-    spike[0][3] = TileAt(0, 2);
-
     spike[1][0] = TileAt(3, 8);
-    spike[1][1] = TileAt(7, 7);
+    spike[0][1] = TileAt(3, 3);
+    spike[1][1] = TileAt(1, 3);
+    spike[0][2] = TileAt(6, 3);
     spike[1][2] = TileAt(6, 1);
-    spike[1][3] = TileAt(2, 2);
+    spike[0][3] = TileAt(6, 6);
+    spike[1][3] = TileAt(8, 6);
     
     // Blue: 0, Pink: 1
     // Fuck...
@@ -68,27 +67,36 @@ void LoadAssets(){
     tile[1][Tile_WallUp] = TileAt(1, 8);
     tile[0][Tile_WallDown] = TileAt(8, 3);
     tile[1][Tile_WallDown] = TileAt(8, 1);
-    tile[0][Tile_WallLeft] = TileAt(0, 4);
-    tile[1][Tile_WallLeft] = TileAt(2, 4);
-    tile[0][Tile_WallRight] = TileAt(9, 5);
-    tile[1][Tile_WallRight] = TileAt(7, 5);
+    tile[0][Tile_WallLeft] = TileAt(6, 8);
+    tile[1][Tile_WallLeft] = TileAt(8, 8);
+    tile[0][Tile_WallRight] = TileAt(3, 1);
+    tile[1][Tile_WallRight] = TileAt(1, 1);
 
     tile[0][Tile_CornerUpLeft] = TileAt(5, 2);
     tile[1][Tile_CornerUpLeft] = TileAt(5, 0);
-    tile[0][Tile_CornerUpRight] = TileAt(1, 1);
-    tile[1][Tile_CornerUpRight] = TileAt(3, 1);
-    tile[0][Tile_CornerDownLeft] = TileAt(8, 8);
-    tile[1][Tile_CornerDownLeft] = TileAt(6, 8);
+    tile[0][Tile_CornerUpRight] = TileAt(7, 5);
+    tile[1][Tile_CornerUpRight] = TileAt(9, 5);
+    tile[0][Tile_CornerDownLeft] = TileAt(2, 4);
+    tile[1][Tile_CornerDownLeft] = TileAt(0, 4);
     tile[0][Tile_CornerDownRight] = TileAt(4, 7);
     tile[1][Tile_CornerDownRight] = TileAt(4, 9);
+
+    tile[0][Tile_OuterUpLeft] = TileAt(5, 7);
+    tile[1][Tile_OuterUpLeft] = TileAt(5, 9);
+    tile[0][Tile_OuterUpRight] = TileAt(2, 5);
+    tile[1][Tile_OuterUpRight] = TileAt(0, 5);
+    tile[0][Tile_OuterDownLeft] = TileAt(7, 4);
+    tile[1][Tile_OuterDownLeft] = TileAt(9, 4);
+    tile[0][Tile_OuterDownRight] = TileAt(4, 2);
+    tile[1][Tile_OuterDownRight] = TileAt(4, 0);
 
     tile[0][Tile_PlatformLeft] = TileAt(4, 6);
     tile[1][Tile_PlatformLeft] = TileAt(4, 8);
     tile[0][Tile_PlatformRight] = TileAt(5, 6);
     tile[1][Tile_PlatformRight] = TileAt(4, 8);
 
-    tile[0][Tile_WallFull] = TileAt(1, 2);
-    tile[1][Tile_WallFull] = TileAt(3, 2);
+    tile[0][Tile_WallFull] = TileAt(2, 3);
+    tile[1][Tile_WallFull] = TileAt(0, 3);
 
     Image player_sprite_image = LoadImage("assets/player/SpriteSheet.png");
     ImageResize(&player_sprite_image,384,448);
@@ -335,6 +343,9 @@ i32 main(void)
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "Synchronize");
 
+    Shader postprocess = LoadShader(0, "shader/postprocess.glsl");
+    i32 postprocessSizeLoc = GetShaderLocation(postprocess, "size");
+
     LoadAssets();
     PopulateTileRuleLookup();
 
@@ -346,10 +357,7 @@ i32 main(void)
 
     SetTargetFPS(60);
 
-    // Texture2D texture = LoadTexture("assets/tiles.png");
-
-    i32 framebuffer_width = 0;
-    i32 framebuffer_height = 0;
+    f32 framebufferSize[2];
 
     while (!WindowShouldClose())
     {
@@ -410,8 +418,8 @@ i32 main(void)
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 2.0f, height / 4.0f };
 
-                    framebuffer_width = width;
-                    framebuffer_height = height / 2;
+                    framebufferSize[0] = width;
+                    framebufferSize[1] = height / 2;
                 }
                 else
                 {
@@ -420,10 +428,12 @@ i32 main(void)
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 4.0f, height / 2.0f };
 
-                    framebuffer_width = width / 2;
-                    framebuffer_height = height;
+                    framebufferSize[0] = width / 2;
+                    framebufferSize[1] = height;
                 }
             }
+
+            SetShaderValue(postprocess, postprocessSizeLoc, framebufferSize, SHADER_UNIFORM_VEC2);
 
             game.framebufferValid = true;
         }
@@ -517,8 +527,8 @@ i32 main(void)
                 for (u32 j = 0; j < STAR_COUNT; ++j)
                 {
                     Star star = game.star[j];
-                    f32 x = star.x * framebuffer_width;
-                    f32 y = star.y * framebuffer_height;
+                    f32 x = star.x * framebufferSize[0];
+                    f32 y = star.y * framebufferSize[1];
                     DrawCircle(x, y, 1 + star.size * 3, WHITE);
                 }
             }
@@ -620,16 +630,20 @@ i32 main(void)
 
         ClearBackground(BLACK);
 
-        Rectangle textureRect = {0.0f, 0.0f, framebuffer_width, -framebuffer_height};
+        Rectangle textureRect = {0.0f, 0.0f, (i32) framebufferSize[0], (i32) -framebufferSize[1]};
         if (game.horizontal_split)
         {
+            BeginShaderMode(postprocess);
             DrawTextureRec(game.framebuffer[0].texture, textureRect, { 0, 0 }, WHITE);
             DrawTextureRec(game.framebuffer[1].texture, textureRect, { 0, height / 2.0f }, WHITE);
+            EndShaderMode();
         }
         else
         {
+            BeginShaderMode(postprocess);
             DrawTextureRec(game.framebuffer[0].texture, textureRect, { 0, 0 }, WHITE);
             DrawTextureRec(game.framebuffer[1].texture, textureRect, { width / 2.0f, 0 }, WHITE);
+            EndShaderMode();
         }
 
         // TODO:
