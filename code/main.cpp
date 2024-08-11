@@ -335,6 +335,9 @@ i32 main(void)
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "Synchronize");
 
+    Shader postprocess = LoadShader(0, "shader/postprocess.glsl");
+    i32 postprocessSizeLoc = GetShaderLocation(postprocess, "size");
+
     LoadAssets();
     PopulateTileRuleLookup();
 
@@ -346,10 +349,7 @@ i32 main(void)
 
     SetTargetFPS(60);
 
-    // Texture2D texture = LoadTexture("assets/tiles.png");
-
-    i32 framebuffer_width = 0;
-    i32 framebuffer_height = 0;
+    f32 framebufferSize[2];
 
     while (!WindowShouldClose())
     {
@@ -410,8 +410,8 @@ i32 main(void)
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 2.0f, height / 4.0f };
 
-                    framebuffer_width = width;
-                    framebuffer_height = height / 2;
+                    framebufferSize[0] = width;
+                    framebufferSize[1] = height / 2;
                 }
                 else
                 {
@@ -420,10 +420,12 @@ i32 main(void)
                     game.camera[i].zoom = 1.0f;
                     game.camera[i].offset = { width / 4.0f, height / 2.0f };
 
-                    framebuffer_width = width / 2;
-                    framebuffer_height = height;
+                    framebufferSize[0] = width / 2;
+                    framebufferSize[1] = height;
                 }
             }
+
+            SetShaderValue(postprocess, postprocessSizeLoc, framebufferSize, SHADER_UNIFORM_VEC2);
 
             game.framebufferValid = true;
         }
@@ -517,8 +519,8 @@ i32 main(void)
                 for (u32 j = 0; j < STAR_COUNT; ++j)
                 {
                     Star star = game.star[j];
-                    f32 x = star.x * framebuffer_width;
-                    f32 y = star.y * framebuffer_height;
+                    f32 x = star.x * framebufferSize[0];
+                    f32 y = star.y * framebufferSize[1];
                     DrawCircle(x, y, 1 + star.size * 3, WHITE);
                 }
             }
@@ -620,16 +622,20 @@ i32 main(void)
 
         ClearBackground(BLACK);
 
-        Rectangle textureRect = {0.0f, 0.0f, framebuffer_width, -framebuffer_height};
+        Rectangle textureRect = {0.0f, 0.0f, (i32) framebufferSize[0], (i32) -framebufferSize[1]};
         if (game.horizontal_split)
         {
+            BeginShaderMode(postprocess);
             DrawTextureRec(game.framebuffer[0].texture, textureRect, { 0, 0 }, WHITE);
             DrawTextureRec(game.framebuffer[1].texture, textureRect, { 0, height / 2.0f }, WHITE);
+            EndShaderMode();
         }
         else
         {
+            BeginShaderMode(postprocess);
             DrawTextureRec(game.framebuffer[0].texture, textureRect, { 0, 0 }, WHITE);
             DrawTextureRec(game.framebuffer[1].texture, textureRect, { width / 2.0f, 0 }, WHITE);
+            EndShaderMode();
         }
 
         // TODO:
