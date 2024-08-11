@@ -42,6 +42,7 @@ struct Goal {
 
 struct Synchronizer {
     Vector2 position;
+    bool playing_music;
 };
 
 struct Level
