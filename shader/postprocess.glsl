@@ -30,7 +30,8 @@ void main()
         }
     }
 
-    finalColor = ((sum / (samples * samples)) + source) * colDiffuse;
+    finalColor = ((sum / (samples * samples)) * 0.4 + source) * colDiffuse;
 
-    finalColor.rgb = finalColor.rgb / (finalColor.rgb + vec3(1));
+    // finalColor.rgb = finalColor.rgb / (finalColor.rgb + vec3(1));
+    finalColor.rgb = vec3(1) - exp(-finalColor.rgb);
 }
