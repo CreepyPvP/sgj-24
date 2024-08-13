@@ -6,16 +6,18 @@
 #include <cassert>
 #include <stdio.h>
 
+#define DEBUG
+
 #define G 1500.0f
 #define PLAYER_JUMP_SPD -800.0f
 #define PLAYER_HOR_SPD 450.0f
 #define PLAYER_HEIGHT 1.65f
 
-#define TOTAL_LEVEL_COUNT 13
+#define TOTAL_LEVEL_COUNT 14
 
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
-u32 level_order[TOTAL_LEVEL_COUNT] = {0,1,6,7,3,4,12,5,11,2,8,9,13};
+u32 level_order[TOTAL_LEVEL_COUNT] = {0,1,6,7,3,4,12,5,11,2,8,9,13,14};
 
 u32 current_level;
 
