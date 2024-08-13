@@ -23,46 +23,30 @@ u32 current_level;
 
 bool reset_level;
 
-Color clearColors[2] = { 
+Color clear_colors[2] = { 
     {64, 0, 128, 255}, 
     {210, 152, 181, 255}
 };
 
-Color rainColors[2] = {
+Color rain_colors[2] = {
     { 200, 200, 200, 150 },
     { 255, 255, 255, 150 },
 };
 
-f32 rainVelocity[2] = {
+f32 rain_velocity[2] = {
     127,
     250,
 };
 
-struct DebugRay
-{
-    Vector2 start;
-    Vector2 end;
-    Color color;
-};
-
-u32 ray_count;
-DebugRay rays[100];
-
-DebugRay *AllocRay()
-{
-    return &rays[ray_count++];
-}
-
 Rectangle spike[2][4];
+Rectangle goal[2];
 Rectangle tile[2][Tile_Walls];
-Texture2D tileset;
-Rectangle goal_rect[2][2];
 Rectangle synchronizer_rect[2];
+Texture2D tileset;
 u32 synchronizer_animation_frame;
 
 Texture2D player_sprite_texture;
 Rectangle player_frame_rec;
-
 
 Music background_music;
 Music death_music;
@@ -70,26 +54,17 @@ Music victory_music;
 Music synchronizer_music;
 
 
-inline Rectangle TileAt(u32 x, u32 y)
+inline Rectangle TileAt(u32 x, u32 y, u32 height = 1)
 {
-    return { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
+    return { x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, height * TILE_SIZE };
 }
 
 void LoadAssets(){
     tileset = LoadTexture("assets/tileset.png");
-
    
-    goal_rect[0][0] = TileAt(11,4);
-    goal_rect[0][1] = TileAt(11,6); 
-    goal_rect[1][0] = TileAt(11,0);
-    goal_rect[1][1] = TileAt(11,2); 
+    goal[0] = TileAt(11,4, 2);
+    goal[1] = TileAt(11,0, 2);
     
-    for(u32 i=0;i<2;i++){
-        for(u32 j=0;j<2;j++){
-            goal_rect[i][j].height = 2* TILE_SIZE;
-        }
-    }
-
     synchronizer_rect[0] = TileAt(0,9);
     synchronizer_rect[1] = TileAt(1,9);
     synchronizer_animation_frame = 0;
@@ -204,53 +179,48 @@ Vector2 DirToVec(Direction direction)
 
 f32 Raycast(Player *player, Level *level, Vector2 offset, Direction direction)
 {
-    f32 maxDist = 5 * TILE_SIZE;
+    f32 max_dist = 5 * TILE_SIZE;
     bool horizontal = direction == Direction_Left || direction == Direction_Right;
     Vector2 dir = DirToVec(direction);
 
-    DebugRay *ray = AllocRay();
-    ray->start = Vector2Add(player->position, offset);
-    ray->color = BLACK;
+    Vector2 start = Vector2Add(player->position, offset);
     
     f32 t = 0;
-    f32 gridOffset;
+    f32 grid_offset;
 
     if (direction == Direction_Down)
     {
-        gridOffset = ((ray->start.y / TILE_SIZE) - (i32) (ray->start.y / TILE_SIZE)) * TILE_SIZE;
+        grid_offset = ((start.y / TILE_SIZE) - (i32) (start.y / TILE_SIZE)) * TILE_SIZE;
     }
     if (direction == Direction_Up)
     {
-        gridOffset = TILE_SIZE - (((ray->start.y / TILE_SIZE) - (i32) (ray->start.y / TILE_SIZE)) * TILE_SIZE);
+        grid_offset = TILE_SIZE - (((start.y / TILE_SIZE) - (i32) (start.y / TILE_SIZE)) * TILE_SIZE);
     }
     if (direction == Direction_Left)
     {
-        gridOffset = TILE_SIZE - (((ray->start.x / TILE_SIZE) - (i32) (ray->start.x / TILE_SIZE)) * TILE_SIZE);
+        grid_offset = TILE_SIZE - (((start.x / TILE_SIZE) - (i32) (start.x / TILE_SIZE)) * TILE_SIZE);
     }
     if (direction == Direction_Right)
     {
-        gridOffset = ((ray->start.x / TILE_SIZE) - (i32) (ray->start.x / TILE_SIZE)) * TILE_SIZE;
+        grid_offset = ((start.x / TILE_SIZE) - (i32) (start.x / TILE_SIZE)) * TILE_SIZE;
     }
 
-    while (t < maxDist)
+    while (t < max_dist)
     {
-        Vector2 current = Vector2Add(ray->start, Vector2Scale(dir, t));
+        Vector2 current = Vector2Add(start, Vector2Scale(dir, t));
 
-        i32 tileX = (i32) (current.x / TILE_SIZE);
-        i32 tileY = (i32) (current.y / TILE_SIZE);
+        i32 tile_x = (i32) (current.x / TILE_SIZE);
+        i32 tile_y = (i32) (current.y / TILE_SIZE);
 
-        if (tileX >= 0 && tileX < level->width && tileY >= 0 && tileY < level->height)
+        if (tile_x >= 0 && tile_x < level->width && tile_y >= 0 && tile_y < level->height)
         {
-            if (level->tiles[tileX + tileY * level->width] < Tile_Walls) {
-                ray->end = Vector2Add(ray->start, Vector2Scale(dir, t - gridOffset));
-                return t - gridOffset;
+            if (level->tiles[tile_x + tile_y * level->width] < Tile_Walls) {
+                return t - grid_offset;
             }
         }
 
         t += TILE_SIZE;
     }
-
-    ray->end = Vector2Add(ray->start, Vector2Scale(dir, maxDist));
 
     return 100 * TILE_SIZE;
 }
@@ -376,9 +346,9 @@ void UpdatePlayer(Player *player, Level *level, Game *game, float delta)
         player->animation_frame++;
     }
 
-    //Spike Collision
+    // Spike Collision
 
-    for(u32 i= 0; i < level->spike_count;i++){
+    for (u32 i = 0; i < level->spike_count ;i++){
         Spikes spike = level->spikes[i];
         Vector2 left_corner, right_corner, peak;
 
@@ -398,7 +368,6 @@ void UpdatePlayer(Player *player, Level *level, Game *game, float delta)
             left_corner = {spike.position.x + TILE_SIZE, spike.position.y + TILE_SIZE };
             right_corner = {spike.position.x + TILE_SIZE, spike.position.y };
             peak = {spike.position.x , spike.position.y + TILE_SIZE/2};
-
         }
 
         Vector2 player_pos = {player->position.x - TILE_SIZE/2, player->position.y};
@@ -425,7 +394,7 @@ void UpdateParticles(Game *game, f32 delta)
         for (u32 j = 0; j < RAIN_PARTICLE_COUNT; ++j)
         {
             Vector2 position = game->rainPosition[i][j];
-            position.y += rainVelocity[i] * delta;
+            position.y += rain_velocity[i] * delta;
             
             if (position.y > game->framebufferSize[1])
             {
@@ -492,8 +461,6 @@ i32 main(void)
 
         f32 delta = GetFrameTime();
         time += delta;
-
-        ray_count = 0;
 
 #ifdef DEBUG
         if (IsKeyPressed(KEY_N))
@@ -696,7 +663,7 @@ i32 main(void)
             }
 
             BeginTextureMode(game.framebuffer[i]);
-            ClearBackground(clearColors[i]);
+            ClearBackground(clear_colors[i]);
             BeginMode2D(*camera);
 
             // Render stars and rain...
@@ -718,7 +685,7 @@ i32 main(void)
                 {
                     for (u32 k = 0; k < RAIN_PARTICLE_COUNT; ++k)
                     {
-                        DrawCircleV(game.rainPosition[j][k], 3, rainColors[j]);
+                        DrawCircleV(game.rainPosition[j][k], 3, rain_colors[j]);
                     }
                 }
 
@@ -759,11 +726,7 @@ i32 main(void)
 
             for (u32 j = 0; j < level->goal_count; ++j)
             {
-                if((synchronizer_animation_frame/12) % 2 == 0){
-                    DrawTextureRec(tileset, goal_rect[i][0], {level->goals[j].position.x, level->goals[j].position.y - TILE_SIZE}, WHITE);
-                }else{
-                    DrawTextureRec(tileset, goal_rect[i][1], {level->goals[j].position.x, level->goals[j].position.y - TILE_SIZE}, WHITE);
-                }
+                DrawTextureRec(tileset, goal[i], {level->goals[j].position.x, level->goals[j].position.y - TILE_SIZE}, WHITE);
             }
             
             for (i32 j = 0; j < level->synchronizer_count; ++j)
